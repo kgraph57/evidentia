@@ -1,93 +1,95 @@
 # Evidentia
 
-Medical Fact-Check Skill for [Claude Code](https://claude.ai/claude-code)
+A comprehensive medical fact-checking skill for [Claude Code](https://claude.ai/claude-code).
 
-医学情報のファクトチェックと批評的評価を行う Claude Code スキル。論文、記事、SNS投稿、患者向け資料など、あらゆる医学情報の正確性を15の評価項目で包括的に評価し、構造化されたレポートを生成します。
+Evaluates medical information across 15 criteria — evidence levels, citation accuracy, statistical interpretation, ethical considerations, and more — then generates a structured Markdown report with an overall A–F score and actionable improvement suggestions.
+
+> **日本語での概要:** 医学情報のファクトチェックと批評的評価を行う Claude Code スキルです。論文・記事・SNS投稿・患者向け資料など、あらゆる医学情報を15項目で包括的に評価し、構造化レポートを生成します。
 
 ## Features
 
-- **15項目の包括的評価** - エビデンスレベル、引用の正確性、統計解釈、因果関係、倫理的配慮など
-- **AIハルシネーション引用の検出** - DOI照合による架空引用の4段階分類
-- **構造化レポート生成** - A〜Fの総合スコア付きMarkdownレポート
-- **修正後の再検証** - 記事修正後のフォローアップ評価
-- **多様な情報形式に対応** - 論文、ブログ、SNS投稿、ニュースレター、患者向け資料
+- **15-item evaluation framework** — covers evidence quality, citation accuracy, statistics, causation, bias, ethics, and more
+- **AI hallucination detection** — cross-references DOIs against actual publications to catch fabricated citations (4-tier classification)
+- **Structured report generation** — produces a Markdown report with an A–F overall score, per-item ratings, and concrete fix suggestions
+- **Post-correction re-verification** — re-evaluates articles after edits to confirm issues are resolved (Step 9)
+- **Multi-format support** — works with research papers, blog posts, social media, newsletters, and patient-facing materials
 
-## Evaluation Items
+## Evaluation Criteria
 
-| # | 評価項目 | 概要 |
-|---|---------|------|
-| 1 | エビデンスレベルと研究デザイン | RCT、メタアナリシス、観察研究等の質の評価 |
-| 2 | 引用と出典の正確性 | DOI照合、ハルシネーション検出を含む |
-| 3 | 統計の解釈 | 相対/絶対リスク、p値、効果量の適切性 |
-| 4 | 因果関係と相関の区別 | 因果推論の妥当性 |
-| 5 | バイアスと利益相反 | COI開示、出版バイアスの評価 |
-| 6 | 誇張表現と断定的表現 | クリックベイト、過度な一般化の検出 |
-| 7 | 対象集団の適切性 | 研究対象と適用対象の一致性 |
-| 8 | 時間的妥当性 | 情報の新しさ、ガイドラインとの整合性 |
-| 9 | 専門用語と平易さのバランス | 対象読者に応じた用語の適切性 |
-| 10 | 倫理的配慮 | スティグマ回避、恐怖煽動の検出 |
-| 11 | 論理的一貫性 | 主張と根拠の整合性 |
-| 12 | 画像・図表の適切性 | データ可視化の公正性 |
-| 13 | 代替説明の考慮 | 複数の視点のバランス |
-| 14 | 実用性と臨床的意義 | 実臨床への適用可能性 |
-| 15 | 情報の完全性 | リスク・ベネフィットの網羅性 |
+| # | Item | Description |
+|---|------|-------------|
+| 1 | Evidence level & study design | Quality of RCTs, meta-analyses, observational studies |
+| 2 | Citation & source accuracy | DOI cross-check, hallucination detection |
+| 3 | Statistical interpretation | Relative vs. absolute risk, p-values, effect sizes |
+| 4 | Causation vs. correlation | Validity of causal claims |
+| 5 | Bias & conflicts of interest | COI disclosure, publication bias |
+| 6 | Exaggeration & overclaiming | Clickbait, overgeneralization |
+| 7 | Target population fit | Match between study population and audience |
+| 8 | Temporal validity | Currency of information, guideline alignment |
+| 9 | Jargon–readability balance | Terminology appropriate for the target audience |
+| 10 | Ethical considerations | Stigma avoidance, fear-mongering detection |
+| 11 | Logical consistency | Coherence between claims and evidence |
+| 12 | Images & figures | Data visualization integrity and sourcing |
+| 13 | Alternative explanations | Balanced presentation of competing viewpoints |
+| 14 | Clinical relevance | Real-world applicability and significance |
+| 15 | Information completeness | Coverage of risks, benefits, and alternatives |
 
 ## Scoring
 
-| スコア | 基準 |
-|--------|------|
-| **A** | 優が12項目以上、不可が0項目 |
-| **B** | 優または良が12項目以上、不可が1項目以下 |
-| **C** | 可以上が12項目以上、不可が2項目以下 |
-| **D** | 不可が3項目以上 |
-| **F** | 不可が5項目以上、または重大な倫理的問題 |
+Each item is rated **Excellent / Good / Fair / Poor** (優/良/可/不可). The overall score is derived as follows:
+
+| Score | Criteria |
+|-------|----------|
+| **A** | 12+ Excellent, 0 Poor |
+| **B** | 12+ Excellent or Good, ≤1 Poor |
+| **C** | 12+ Fair or better, ≤2 Poor |
+| **D** | 3+ Poor |
+| **F** | 5+ Poor, or critical ethical issues |
 
 ## Installation
 
 ### Prerequisites
 
-- [Claude Code](https://claude.ai/claude-code) がインストールされていること
+- [Claude Code](https://claude.ai/claude-code) installed
 
 ### Setup
 
 ```bash
-# 1. リポジトリをクローン
+# 1. Clone this repository
 git clone https://github.com/kgraph57/evidentia.git
 
-# 2. Claude Code のスキルディレクトリにコピー
+# 2. Copy to Claude Code skills directory
 mkdir -p ~/.claude/skills/medical-fact-check
 cp -r evidentia/SKILL.md ~/.claude/skills/medical-fact-check/
 cp -r evidentia/references ~/.claude/skills/medical-fact-check/
 cp -r evidentia/templates ~/.claude/skills/medical-fact-check/
 ```
 
+That's it. The skill is automatically loaded by Claude Code.
+
 ## Usage
 
-Claude Code のチャットで以下のようなトリガーフレーズを使うと、スキルが起動します:
+Trigger the skill in Claude Code chat with phrases like:
 
 ```
-この記事をファクトチェックして
-```
-
-```
-エビデンスチェックお願いします
+Fact-check this article
 ```
 
 ```
-この投稿の問題点を教えて
+Check the evidence in this post
 ```
 
-### Input
+> **日本語トリガー例:** 「ファクトチェックして」「エビデンスチェック」「この記事を評価して」「この投稿の問題点を教えて」
 
-以下の形式の医学情報を評価できます:
+### Input formats
 
-- **テキスト**: チャットに直接ペースト
-- **ファイル**: Markdownファイルのパスを指定
-- **URL**: WebFetchで記事を取得して評価
+- **Text** — paste directly into chat
+- **File** — provide a path to a Markdown/text file
+- **URL** — the skill uses WebFetch to retrieve and evaluate web articles
 
 ### Output
 
-評価結果は Markdown ファイルとして出力されます:
+A structured Markdown report is saved to the working directory:
 
 ```
 medical-fact-check-report-YYYY-MM-DD.md
@@ -95,53 +97,69 @@ medical-fact-check-report-YYYY-MM-DD.md
 
 ## AI Hallucination Detection
 
-本スキルの特徴的な機能として、AI生成コンテンツに含まれるハルシネーション引用の検出があります。
+A key feature of Evidentia is its ability to detect fabricated citations commonly found in AI-generated medical content.
 
-引用を4段階で分類します:
+Citations are classified into 4 tiers:
 
-| 分類 | 説明 |
-|------|------|
-| **引用確認済み** | 論文が実在し、内容が一致 |
-| **引用内容不一致** | 論文は実在するが、引用された文脈と異なる |
-| **書誌情報不一致** | 論文は実在するが、DOI/著者名等に誤り |
-| **ハルシネーション引用** | DOIが別論文を指す、または論文自体が実在しない |
+| Tier | Description |
+|------|-------------|
+| **Verified** | Paper exists and content matches the citation |
+| **Content mismatch** | Paper exists but is cited out of context |
+| **Bibliographic mismatch** | Paper exists but DOI, author, or journal info is wrong |
+| **Hallucination** | DOI points to an unrelated paper, or the paper does not exist at all |
+
+> Rather than stopping at "could not verify," the skill actively cross-references DOIs to determine whether a citation is merely unverifiable or provably fabricated.
+
+## Workflow (9 Steps)
+
+1. **Acquire & analyze** — identify content type, audience, main claims
+2. **Load checklist** — read the 15-item evaluation criteria
+3. **Assess evidence levels** — apply GRADE methodology where applicable
+4. **Verify citations** — search DOI/PMID, cross-check against originals, detect hallucinations
+5. **Detailed evaluation** — rate each of the 15 items (Excellent/Good/Fair/Poor)
+6. **Determine overall score** — aggregate item ratings into A–F
+7. **Generate report** — produce structured Markdown from the template
+8. **Deliver report** — save file and summarize findings
+9. **Post-correction re-verification** *(optional)* — re-evaluate after article revisions
 
 ## File Structure
 
 ```
 evidentia/
-├── SKILL.md                    # メインのスキル定義（9ステップのワークフロー）
+├── SKILL.md                    # Main skill definition (9-step workflow)
 ├── references/
-│   ├── checklist.md            # 15評価項目の詳細チェックリスト
-│   └── evidence-levels.md      # エビデンスレベルの分類体系
+│   ├── checklist.md            # Detailed 15-item evaluation checklist
+│   └── evidence-levels.md      # Evidence hierarchy & quality assessment tools
 └── templates/
-    └── report-template.md      # レポートテンプレート（8セクション）
+    └── report-template.md      # Report template (8 sections)
 ```
 
 ## Customization
 
-### 評価項目のカスタマイズ
+### Evaluation criteria
 
-`references/checklist.md` を編集して、独自のチェック項目を追加できます。
+Edit `references/checklist.md` to add domain-specific check items (e.g., oncology-specific criteria, drug interaction checks).
 
-### レポート形式のカスタマイズ
+### Report format
 
-`templates/report-template.md` を編集して、レポートのセクション構成を変更できます。
+Edit `templates/report-template.md` to modify section structure or add custom sections.
 
-### エビデンスレベルの拡張
+### Evidence levels
 
-`references/evidence-levels.md` に、特定の診療科や研究分野に特化した評価基準を追加できます。
+Edit `references/evidence-levels.md` to add specialty-specific assessment standards (e.g., pediatrics, cardiology).
 
 ## Limitations
 
-- AIによる評価であり、専門家の判断を代替するものではありません
-- 引用論文の全文確認はウェブ検索で取得可能な情報に限定されます
-- 画像・図表の内容評価は限定的です
-- 最終的な医学的判断は医療専門家が行ってください
+- This is an AI-based evaluation and **does not replace expert medical judgment**
+- Full-text review of cited papers is limited to what is accessible via web search (abstracts, open-access articles, bibliographic metadata)
+- Image and figure evaluation is limited
+- Final medical decisions should always be made by qualified healthcare professionals
+
+> **免責事項:** 本スキルはAIによる評価であり、医療専門家の判断を代替するものではありません。最終的な医学的判断は資格を持つ医療従事者が行ってください。
 
 ## Contributing
 
-改善提案やバグ報告は [Issues](https://github.com/kgraph57/evidentia/issues) からお寄せください。
+Bug reports and feature requests are welcome via [Issues](https://github.com/kgraph57/evidentia/issues).
 
 ## License
 
