@@ -2,17 +2,37 @@
 
 A comprehensive medical fact-checking skill for [Claude Code](https://claude.ai/claude-code).
 
-Evaluates medical information across 15 criteria — evidence levels, citation accuracy, statistical interpretation, ethical considerations, and more — then generates a structured Markdown report with an overall A–F score and actionable improvement suggestions.
+Evaluates any medical content — research papers, news articles, social media posts, YouTube/podcast transcripts, conference slides, clinical guidelines, pharma marketing, patient leaflets, AI-generated text, and more — across 15 criteria, then generates a structured Markdown report with an overall A–F score and actionable improvement suggestions.
 
-> **日本語での概要:** 医学情報のファクトチェックと批評的評価を行う Claude Code スキルです。論文・記事・SNS投稿・患者向け資料など、あらゆる医学情報を15項目で包括的に評価し、構造化レポートを生成します。
+> **日本語での概要:** 医学情報のファクトチェックと批評的評価を行う Claude Code スキルです。論文・記事・SNS投稿・動画/ポッドキャスト・学会スライド・診療ガイドライン・製薬マーケティング資料・患者向けリーフレット・AI生成コンテンツなど、あらゆる医学情報を15項目で包括的に評価し、構造化レポートを生成します。
 
 ## Features
 
 - **15-item evaluation framework** — covers evidence quality, citation accuracy, statistics, causation, bias, ethics, and more
 - **AI hallucination detection** — cross-references DOIs against actual publications to catch fabricated citations (4-tier classification)
+- **12 media types supported** — research papers, news, social media, video/podcast transcripts, slides, guidelines, marketing, patient materials, AI-generated content, textbooks, infographics, health apps
+- **Media-adaptive evaluation** — automatically adjusts evaluation criteria weights based on content type
+- **Public health risk assessment** — flags content with LOW / MEDIUM / HIGH misinformation risk
 - **Structured report generation** — produces a Markdown report with an A–F overall score, per-item ratings, and concrete fix suggestions
 - **Post-correction re-verification** — re-evaluates articles after edits to confirm issues are resolved (Step 9)
-- **Multi-format support** — works with research papers, blog posts, social media, newsletters, and patient-facing materials
+- **Multi-language support** — evaluates content in its original language
+
+## Supported Media Types
+
+| Category | Examples | Key Focus |
+|----------|----------|-----------|
+| Research papers | Journal articles, preprints, systematic reviews | Evidence level, methodology, statistical rigor |
+| News & articles | Health news, medical blogs, magazine articles | Accuracy of claims, source attribution, exaggeration |
+| Social media | X (Twitter), Instagram, TikTok, Reddit, note | Brevity-induced omissions, clickbait, misinformation risk |
+| Newsletters | Email newsletters, Substack, medical columns | Citation completeness, audience calibration |
+| Patient materials | Leaflets, brochures, hospital handouts | Readability, completeness, fear-mongering |
+| Video/audio transcripts | YouTube, podcasts, webinar transcripts | Verbal exaggeration, missing nuance, source attribution |
+| Presentations | Conference slides, lecture materials, grand rounds | Slide oversimplification, citation on slides |
+| Clinical guidelines | Practice guidelines, protocols, algorithms | AGREE II compliance, evidence grading, COI |
+| Marketing materials | Pharma ads, device brochures, supplement claims | Regulatory compliance, selective data, COI |
+| Health apps & digital | App descriptions, chatbot outputs, AI-generated content | Hallucination detection, accuracy of automated advice |
+| Textbooks & education | Textbook chapters, CME/CPD materials | Currency, completeness, pedagogical accuracy |
+| Infographics | Visual summaries, data visualizations, social cards | Data integrity, oversimplification, source attribution |
 
 ## Evaluation Criteria
 
@@ -36,7 +56,7 @@ Evaluates medical information across 15 criteria — evidence levels, citation a
 
 ## Scoring
 
-Each item is rated **Excellent / Good / Fair / Poor** (優/良/可/不可). The overall score is derived as follows:
+Each item is rated **Excellent / Good / Fair / Poor**. The overall score is derived as follows:
 
 | Score | Criteria |
 |-------|----------|
@@ -50,7 +70,7 @@ Each item is rated **Excellent / Good / Fair / Poor** (優/良/可/不可). The 
 
 ### Prerequisites
 
-- [Claude Code](https://claude.ai/claude-code) installed
+- [Claude Code](https://claude.ai/claude-code) installed and working
 
 ### Setup
 
@@ -65,11 +85,15 @@ cp -r evidentia/references ~/.claude/skills/medical-fact-check/
 cp -r evidentia/templates ~/.claude/skills/medical-fact-check/
 ```
 
-That's it. The skill is automatically loaded by Claude Code.
+That's it. Claude Code automatically discovers skills in `~/.claude/skills/`.
 
-## Usage
+## How to Use (Invocation)
 
-Trigger the skill in Claude Code chat with phrases like:
+The skill activates automatically when Claude Code detects a fact-checking intent. There are several ways to invoke it:
+
+### Trigger Phrases (English)
+
+Type any of these in the Claude Code chat:
 
 ```
 Fact-check this article
@@ -79,13 +103,41 @@ Fact-check this article
 Check the evidence in this post
 ```
 
-> **日本語トリガー例:** 「ファクトチェックして」「エビデンスチェック」「この記事を評価して」「この投稿の問題点を教えて」
+```
+Evaluate this medical content
+```
 
-### Input formats
+```
+Is this health claim accurate?
+```
 
-- **Text** — paste directly into chat
-- **File** — provide a path to a Markdown/text file
-- **URL** — the skill uses WebFetch to retrieve and evaluate web articles
+> **日本語トリガー例:** 「ファクトチェックして」「エビデンスチェック」「この記事を評価して」「この投稿の問題点を教えて」「この医学情報を確認して」
+
+### Input Methods
+
+You can provide content in several ways:
+
+**1. Paste text directly**
+```
+Fact-check this article:
+
+[paste your article text here]
+```
+
+**2. Provide a file path**
+```
+Fact-check this file: ~/Documents/my-article.md
+```
+
+**3. Provide a URL**
+```
+Fact-check this: https://example.com/health-article
+```
+
+**4. Provide a video/podcast transcript**
+```
+Fact-check this YouTube transcript: [paste transcript]
+```
 
 ### Output
 
@@ -94,6 +146,23 @@ A structured Markdown report is saved to the working directory:
 ```
 medical-fact-check-report-YYYY-MM-DD.md
 ```
+
+The report includes:
+- Overall A–F score and public health risk level
+- Per-item ratings with specific issues and suggestions
+- Citation verification results (4-tier classification)
+- Before/after correction examples
+- References used during evaluation
+
+### Post-Correction Re-Check (Step 9)
+
+After fixing issues, ask Claude Code to re-evaluate:
+
+```
+Re-check the corrected article: ~/Documents/my-article-v2.md
+```
+
+The updated report is saved with a `-rev2` suffix.
 
 ## AI Hallucination Detection
 
@@ -112,12 +181,12 @@ Citations are classified into 4 tiers:
 
 ## Workflow (9 Steps)
 
-1. **Acquire & analyze** — identify content type, audience, main claims
+1. **Acquire & analyze** — identify content type, media format, audience, main claims, public health risk level
 2. **Load checklist** — read the 15-item evaluation criteria
 3. **Assess evidence levels** — apply GRADE methodology where applicable
 4. **Verify citations** — search DOI/PMID, cross-check against originals, detect hallucinations
-5. **Detailed evaluation** — rate each of the 15 items (Excellent/Good/Fair/Poor)
-6. **Determine overall score** — aggregate item ratings into A–F
+5. **Detailed evaluation** — rate each of the 15 items with media-specific adjustments
+6. **Determine overall score** — aggregate item ratings into A–F, assign risk level
 7. **Generate report** — produce structured Markdown from the template
 8. **Deliver report** — save file and summarize findings
 9. **Post-correction re-verification** *(optional)* — re-evaluate after article revisions
@@ -126,12 +195,12 @@ Citations are classified into 4 tiers:
 
 ```
 evidentia/
-├── SKILL.md                    # Main skill definition (9-step workflow)
+├── SKILL.md                    # Main skill definition (9-step workflow + media-specific handling)
 ├── references/
-│   ├── checklist.md            # Detailed 15-item evaluation checklist
-│   └── evidence-levels.md      # Evidence hierarchy & quality assessment tools
+│   ├── checklist.md            # Detailed 15-item evaluation checklist with media-specific notes
+│   └── evidence-levels.md      # Evidence hierarchy, GRADE, & quality assessment tools
 └── templates/
-    └── report-template.md      # Report template (8 sections)
+    └── report-template.md      # Report template (9 sections incl. citation verification)
 ```
 
 ## Customization
@@ -146,13 +215,14 @@ Edit `templates/report-template.md` to modify section structure or add custom se
 
 ### Evidence levels
 
-Edit `references/evidence-levels.md` to add specialty-specific assessment standards (e.g., pediatrics, cardiology).
+Edit `references/evidence-levels.md` to add specialty-specific assessment standards (e.g., pediatrics, cardiology, emergency medicine, mental health).
 
 ## Limitations
 
 - This is an AI-based evaluation and **does not replace expert medical judgment**
 - Full-text review of cited papers is limited to what is accessible via web search (abstracts, open-access articles, bibliographic metadata)
-- Image and figure evaluation is limited
+- Image, video, and audio evaluation is limited to text-based analysis (transcripts, captions)
+- Rapidly evolving fields may have evidence not yet indexed
 - Final medical decisions should always be made by qualified healthcare professionals
 
 > **免責事項:** 本スキルはAIによる評価であり、医療専門家の判断を代替するものではありません。最終的な医学的判断は資格を持つ医療従事者が行ってください。

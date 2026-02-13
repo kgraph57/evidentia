@@ -1,221 +1,323 @@
-# 医学情報チェックリスト
+# Medical Information Evaluation Checklist
 
-医学情報の批評的評価のための包括的なチェック項目。各項目について評価し、問題点と改善案を提示する。
+Comprehensive checklist for critical appraisal of medical information. Evaluate each item and provide identified issues and improvement suggestions.
 
-## 1. エビデンスレベルと研究デザイン
+## 1. Evidence Level & Study Design
 
-### チェック項目
-- 引用されている研究のデザインは適切か（RCT、コホート研究、症例報告など）
-- エビデンスレベルの階層性が正しく理解されているか
-- 研究の質（サンプルサイズ、バイアスリスク、統計的検出力）は十分か
-- 動物実験やin vitro研究を人間への効果として過度に一般化していないか
-- プレプリント論文と査読済み論文の区別がなされているか
-- 研究の発表年と現在の医学的コンセンサスとの整合性
+### Check Items
+- Is the study design appropriate for the claims being made (RCT, cohort, case report, etc.)?
+- Is the evidence hierarchy correctly understood and applied?
+- Is study quality sufficient (sample size, bias risk, statistical power)?
+- Are animal or in vitro studies overgeneralized to human effects?
+- Are preprints distinguished from peer-reviewed publications?
+- Is the publication date consistent with current medical consensus?
+- For guidelines: was a systematic evidence review conducted?
 
-### 評価基準
-- **高**: 複数の高品質RCTまたはメタアナリシスに基づく
-- **中**: 観察研究や単一RCTに基づく
-- **低**: 症例報告、専門家の意見、または根拠不明
+### Rating Criteria
+- **Excellent**: Based on multiple high-quality RCTs or meta-analyses
+- **Good**: Based on well-conducted observational studies or a single RCT
+- **Fair**: Based on case reports, expert opinion, or unclear evidence basis
+- **Poor**: Claims made without evidence, or evidence grossly misrepresented
 
-## 2. 引用と出典の正確性
+### Media-Specific Notes
+- **Social media**: At minimum, sources should be named or linked
+- **Marketing**: Evidence claims require heightened scrutiny for selective reporting
+- **Guidelines**: GRADE assessment is expected
+- **Patient materials**: Simplified evidence descriptions are acceptable if accurate
 
-### チェック項目
-- 引用された論文や情報源が実在するか
-- 引用内容が原著論文の結論を正確に反映しているか
-- 引用の文脈が適切か（チェリーピッキングされていないか）
-- 二次情報源（ニュース記事など）と一次情報源（原著論文）の区別
-- DOI、PMID、URLなどの識別子が正確か
-- 引用の形式が適切か（著者名、発表年、雑誌名など）
-- **AIハルシネーション引用の検出**: DOIが指す実際の論文と引用情報（著者名、タイトル、ジャーナル名）が一致するか
-- **架空引用パターンの識別**: 著者名・タイトル・ジャーナルが「もっともらしいが実在しない」組み合わせでないか
+---
 
-### AIハルシネーション引用の分類
+## 2. Citation & Source Accuracy
 
-引用の検証結果を以下の4段階で分類する:
+### Check Items
+- Do cited papers and sources actually exist?
+- Does the citation accurately reflect the original paper's conclusions?
+- Is the citation context appropriate (no cherry-picking)?
+- Are primary sources (original papers) distinguished from secondary sources (news articles)?
+- Are identifiers (DOI, PMID, URL) accurate?
+- Is citation formatting correct (author names, year, journal)?
 
-- **引用確認済み**: 論文が実在し、引用された内容と一致
-- **引用内容不一致**: 論文は実在するが、引用された文脈と原著の内容が異なる
-- **書誌情報不一致**: 論文は実在するが、DOI/著者名/ジャーナル名等に誤りがある
-- **ハルシネーション引用（重大）**: DOIが全く別の論文を指す、または論文自体が実在しない
+### AI Hallucination Detection
 
-「検索で確認できなかった」だけで終わらず、DOIが付与されている場合はDOI自体が正しい論文を指しているかを必ず確認すること。
+AI-generated content (ChatGPT, Claude, Gemini, etc.) frequently contains plausible but fabricated citations. Apply these additional checks:
 
-### 評価基準
-- 原著論文への直接アクセスと内容確認
-- 引用箇所と原文の比較
-- 文脈の適切性評価
-- DOIの実在確認と引用情報との照合
+- **DOI cross-verification**: Does the DOI resolve to the claimed paper (matching title, authors, journal)?
+- **Author verification**: Does the author exist and publish in this field?
+- **Bibliographic consistency**: Do the journal name, volume, and page numbers match a real publication?
+- **Fabrication patterns**: Is the author-title-journal combination "plausible but non-existent"?
 
-## 3. 統計の解釈
+### Citation Classification (4 Tiers)
 
-### チェック項目
-- 相対リスクと絶対リスクの混同がないか
-- NNT（治療必要数）やNNH（有害必要数）が適切に提示されているか
-- p値の解釈が適切か（統計的有意性と臨床的意義の区別）
-- 信頼区間が提示され、適切に解釈されているか
-- 効果量（effect size）が適切に評価されているか
-- 多重比較の問題が考慮されているか
-- サブグループ解析の結果が過度に強調されていないか
+Classify each citation verification result:
 
-### よくある誤り
-- 「リスクが50%減少」という相対リスクの表現のみで、絶対リスク減少を示さない
-- p<0.05を「効果がある」と断定的に解釈
-- 統計的有意差を臨床的に重要な差と同一視
+| Tier | Classification | Description |
+|------|---------------|-------------|
+| 1 | **Verified** | Paper exists and content matches the citation |
+| 2 | **Content mismatch** | Paper exists but is cited out of context or misrepresented |
+| 3 | **Bibliographic mismatch** | Paper exists but DOI, author, or journal info is incorrect |
+| 4 | **Hallucination** | DOI points to an unrelated paper, or the paper does not exist at all |
 
-## 4. 因果関係と相関の区別
+**Critical rule**: Do NOT stop at "could not verify." If a DOI is provided, always check whether the DOI resolves to the correct paper. Actively distinguish between "unverifiable" and "provably fabricated."
 
-### チェック項目
-- 相関関係を因果関係として誤って提示していないか
-- 因果関係を示すための条件（時間的前後関係、用量反応関係、生物学的妥当性など）が満たされているか
-- 交絡因子の可能性が考慮されているか
-- 逆因果の可能性が検討されているか
+### Rating Criteria
+- **Excellent**: All citations verified, accurately represented, proper formatting
+- **Good**: Citations exist and are mostly accurate; minor formatting issues
+- **Fair**: Some citations unverifiable or taken slightly out of context
+- **Poor**: Fabricated citations found, or citations grossly misrepresent source material
 
-### 評価基準
-- 観察研究からの因果推論は慎重に
-- 「関連がある」と「原因である」の区別
-- Bradford Hillの因果関係基準の適用
+---
 
-## 5. バイアスと利益相反
+## 3. Statistical Interpretation
 
-### チェック項目
-- 研究の資金提供源が開示されているか
-- 利益相反（COI）が適切に開示されているか
-- 選択バイアス、情報バイアス、交絡バイアスの可能性
-- 出版バイアスの可能性（ポジティブな結果のみが報告されていないか）
-- 著者や情報提供者の専門性と立場
-- スポンサーシップバイアスの可能性
+### Check Items
+- Is there confusion between relative risk and absolute risk?
+- Are NNT (number needed to treat) and NNH (number needed to harm) presented when appropriate?
+- Is p-value interpretation correct (statistical significance vs. clinical significance)?
+- Are confidence intervals presented and correctly interpreted?
+- Is effect size appropriately evaluated?
+- Are multiple comparison issues considered?
+- Are subgroup analysis results overemphasized?
 
-### 評価基準
-- 利益相反の開示の有無
-- 資金提供者と研究結果の関連性
-- 独立した研究による再現性
+### Common Errors
+- Presenting only relative risk reduction (e.g., "50% risk reduction") without absolute risk
+- Interpreting p<0.05 as definitive proof of effect
+- Equating statistical significance with clinical importance
+- Ignoring confidence interval width when interpreting results
 
-## 6. 誇張表現と断定的表現
+### Rating Criteria
+- **Excellent**: Statistics correctly interpreted with both relative and absolute measures
+- **Good**: Generally correct; minor omissions in nuance
+- **Fair**: Some misinterpretation present but not dangerously misleading
+- **Poor**: Serious statistical misinterpretation that could mislead decisions
 
-### チェック項目
-- 「画期的」「革命的」「奇跡の」などの誇張表現
-- 研究結果を過度に単純化していないか
-- 不確実性や限界が適切に示されているか
-- 「〜が証明された」などの断定的表現が適切か
-- タイトルと内容の乖離（クリックベイト）
-- 例外や条件を無視した一般化
+---
 
-### 評価基準
-- 研究の限界と不確実性の明記
-- 条件付きの表現（「〜の可能性がある」「〜が示唆される」）の使用
-- バランスの取れた表現
+## 4. Causation vs. Correlation
 
-## 7. 対象集団の適切性
+### Check Items
+- Are correlational findings incorrectly presented as causal?
+- Are conditions for causal inference met (temporal sequence, dose-response, biological plausibility)?
+- Are confounding variables considered?
+- Is reverse causation discussed?
 
-### チェック項目
-- 研究対象集団と読者対象集団の一致性
-- 年齢、性別、人種、基礎疾患などの特性の考慮
-- 研究が行われた地域や医療環境の違い
-- 小児への適用可能性（成人の研究を小児に一般化していないか）
-- 特殊な集団（妊婦、高齢者など）への配慮
+### Rating Criteria
+- Causal inference from observational studies should be cautious
+- Clear distinction between "associated with" and "causes"
+- Application of Bradford Hill criteria where relevant
 
-### 評価基準
-- 研究対象と適用対象の明確な区別
-- 一般化可能性（external validity）の評価
+---
 
-## 8. 時間的妥当性
+## 5. Bias & Conflicts of Interest
 
-### チェック項目
-- 引用されている情報が最新か
-- 古いガイドラインや推奨を現在のものとして提示していないか
-- 医学的コンセンサスの変化が反映されているか
-- 新しい研究によって覆された知見を引用していないか
+### Check Items
+- Is the funding source disclosed?
+- Are conflicts of interest (COI) properly disclosed?
+- Is there risk of selection bias, information bias, or confounding bias?
+- Is publication bias considered (are only positive results reported)?
+- What is the author's or presenter's expertise and position?
+- Is there potential sponsorship bias?
 
-### 評価基準
-- 最新のガイドライン（日本小児科学会、AAP、WHOなど）との整合性
-- 過去5年以内の文献を優先（分野により異なる）
+### Media-Specific Notes
+- **Marketing materials**: COI is inherent — evaluate whether it's acknowledged and how it affects claims
+- **Guidelines**: Panel member COI disclosures are mandatory per AGREE II
+- **Social media influencers**: Check for undisclosed sponsored content
+- **Conference presentations**: Industry-sponsored symposia require disclosure
 
-## 9. 専門用語と平易さのバランス
+### Rating Criteria
+- **Excellent**: Full COI disclosure, balanced presentation, independent replication noted
+- **Good**: COI disclosed; minor concerns about balance
+- **Fair**: COI partially disclosed or potential bias not addressed
+- **Poor**: Undisclosed COI, clear bias, or sponsored content without disclosure
 
-### チェック項目
-- 対象読者に適した用語の使用
-- 専門用語の適切な説明
-- 過度な簡略化による誤解の可能性
-- 医学用語の誤用や不正確な使用
+---
 
-### 評価基準（対象読者別）
-- **一般向け**: 専門用語は最小限、平易な説明
-- **医療従事者向け**: 正確な専門用語の使用
-- **患者向け**: 理解しやすさと正確さのバランス
+## 6. Exaggeration & Overclaiming
 
-## 10. 倫理的配慮
+### Check Items
+- Are there hyperbolic terms ("breakthrough," "revolutionary," "miracle")?
+- Are research findings oversimplified?
+- Are uncertainty and limitations appropriately conveyed?
+- Are definitive statements ("proven," "cures") justified by the evidence?
+- Is there a gap between the title/headline and actual content (clickbait)?
+- Are exceptions and conditions ignored in generalizations?
 
-### チェック項目
-- 患者の尊厳やプライバシーへの配慮
-- スティグマを助長する表現の有無
-- 恐怖を煽る表現や不安を過度に増大させる内容
-- 未承認治療や代替医療の推奨の適切性
-- インフォームドコンセントの重要性の言及
+### Media-Specific Notes
+- **Social media**: Brevity may force simplification, but core accuracy must be maintained
+- **Marketing**: Primary concern — regulatory bodies require fair balance
+- **Press releases**: Often exaggerate study findings; compare with the actual paper
+- **Video thumbnails/titles**: Often sensationalized beyond content
 
-### 評価基準
-- 患者中心の視点
-- 科学的根拠に基づかない治療の推奨回避
-- バランスの取れたリスク・ベネフィット情報
+### Rating Criteria
+- **Excellent**: Appropriate hedging, limitations stated, balanced language
+- **Good**: Mostly balanced; occasional minor overstatement
+- **Fair**: Notable exaggeration or missing caveats
+- **Poor**: Seriously misleading claims, clickbait, or dangerous overclaiming
 
-## 11. 論理的一貫性
+---
 
-### チェック項目
-- 主張と根拠の論理的つながり
-- 矛盾する情報の提示
-- 論理の飛躍や前提の欠如
-- 結論が根拠から適切に導かれているか
+## 7. Target Population Fit
 
-### 評価基準
-- 論理的な流れの確認
-- 前提と結論の整合性
+### Check Items
+- Does the study population match the audience being addressed?
+- Are age, sex, race, and comorbidity differences considered?
+- Are differences in healthcare setting or region accounted for?
+- Are adult study results being inappropriately applied to children?
+- Are special populations (pregnant, elderly, immunocompromised) addressed?
 
-## 12. 画像・図表の適切性
+### Rating Criteria
+- **Excellent**: Clear distinction between study population and target audience
+- **Good**: Generally appropriate; minor generalizability concerns
+- **Fair**: Notable mismatch between study population and intended audience
+- **Poor**: Grossly inappropriate extrapolation (e.g., adult data presented as pediatric evidence)
 
-### チェック項目
-- 画像や図表の出典が明記されているか
-- データの可視化が適切か（グラフの軸、スケールの操作など）
-- 画像が内容を正確に表現しているか
-- 誤解を招く視覚表現の有無
+---
 
-### 評価基準
-- 図表の出典確認
-- データ表現の公正性
-- 視覚的な誤解の可能性
+## 8. Temporal Validity
 
-## 13. 代替説明の考慮
+### Check Items
+- Is the cited information current?
+- Are outdated guidelines or recommendations presented as current?
+- Are changes in medical consensus reflected?
+- Are superseded findings still being cited?
 
-### チェック項目
-- 提示された結論以外の解釈の可能性
-- 対立する研究結果や意見の存在
-- 議論の余地がある内容の提示方法
-- バランスの取れた視点の提供
+### Rating Criteria
+- Alignment with current guidelines (specialty societies, WHO, etc.)
+- Priority for literature within the past 5 years (varies by field)
+- Acknowledgment when citing older foundational studies
 
-### 評価基準
-- 複数の視点の提示
-- 不確実性の明示
-- 科学的議論の現状の反映
+---
 
-## 14. 実用性と臨床的意義
+## 9. Jargon–Readability Balance
 
-### チェック項目
-- 研究結果が実臨床に適用可能か
-- 推奨される介入の実現可能性
-- コストや利便性の考慮
-- 臨床的に意味のある効果量か
+### Check Items
+- Is terminology appropriate for the target audience?
+- Are technical terms adequately explained?
+- Could oversimplification create misunderstanding?
+- Are medical terms used correctly?
 
-### 評価基準
-- 実臨床での適用可能性
-- 患者にとっての実用性
-- リスク・ベネフィット・コストのバランス
+### Rating by Audience
+- **General public**: Minimal jargon, plain language explanations
+- **Healthcare professionals**: Accurate technical terminology expected
+- **Patients**: Balance between understandability and precision
 
-## 15. 情報の完全性
+### Media-Specific Notes
+- **Patient leaflets**: Aim for 6th-grade reading level (Flesch-Kincaid)
+- **Social media**: Platform-appropriate language
+- **Guidelines**: HCP-level language is acceptable
+- **Marketing**: Must be accessible to both HCPs and the public
 
-### チェック項目
-- 重要な情報の欠落（副作用、限界、代替案など）
-- 都合の良い情報のみの選択的提示
-- リスクとベネフィットの両方の提示
-- 治療の選択肢の網羅性
+---
 
-### 評価基準
-- バランスの取れた情報提供
-- 意思決定に必要な情報の網羅性
+## 10. Ethical Considerations
+
+### Check Items
+- Is patient dignity and privacy respected?
+- Are there stigmatizing expressions?
+- Is there fear-mongering or unnecessary anxiety induction?
+- Is the promotion of unapproved treatments or alternative medicine appropriate?
+- Is the importance of informed consent mentioned?
+- Is vulnerable population exploitation avoided?
+
+### Media-Specific Notes
+- **Marketing**: Check for manipulation through fear, shame, or false hope
+- **Social media**: Stigma amplification risk in viral content
+- **Patient materials**: Must respect autonomy and support informed decision-making
+- **AI-generated**: Check for biased or insensitive output
+
+### Rating Criteria
+- **Excellent**: Patient-centered, respectful, balanced risk-benefit information
+- **Good**: Generally appropriate; minor concerns
+- **Fair**: Some ethically questionable content
+- **Poor**: Stigmatizing, fear-mongering, promotes unproven treatments, or exploits vulnerable populations
+
+---
+
+## 11. Logical Consistency
+
+### Check Items
+- Is there a logical connection between claims and evidence?
+- Are contradictory statements present?
+- Are there logical leaps or missing premises?
+- Are conclusions appropriately derived from the evidence?
+
+### Rating Criteria
+- **Excellent**: Clear logical flow, conclusions fully supported by evidence
+- **Good**: Mostly consistent; minor logical gaps
+- **Fair**: Notable inconsistencies or unsupported conclusions
+- **Poor**: Fundamental logical errors, contradictions, or non-sequiturs
+
+---
+
+## 12. Images & Figures
+
+### Check Items
+- Are image and figure sources cited?
+- Is data visualization appropriate (axes, scales, no manipulation)?
+- Do images accurately represent the content?
+- Are there misleading visual representations?
+
+### Media-Specific Notes
+- **Social media**: Infographics and memes require source verification
+- **Marketing**: Selective data visualization is common — check for truncated axes, missing comparators
+- **Guidelines**: Evidence figures should follow reporting standards
+- **Presentations**: Check that graphs aren't reformatted to exaggerate effects
+
+### Rating Criteria
+- **Excellent**: All visuals sourced, accurate, and fairly presented
+- **Good**: Mostly appropriate; minor issues
+- **Fair**: Some misleading visuals or missing sources
+- **Poor**: Manipulated data visualization or completely unsourced figures
+
+---
+
+## 13. Alternative Explanations
+
+### Check Items
+- Are interpretations other than the presented conclusion considered?
+- Are conflicting study results or opinions acknowledged?
+- Is the presentation of debatable content balanced?
+- Is scientific uncertainty communicated?
+
+### Rating Criteria
+- **Excellent**: Multiple perspectives presented, uncertainty acknowledged
+- **Good**: Generally balanced; minor omissions of alternative views
+- **Fair**: One-sided presentation without acknowledging debate
+- **Poor**: Alternative explanations actively suppressed or strawmanned
+
+---
+
+## 14. Clinical Relevance
+
+### Check Items
+- Are research findings applicable to real clinical practice?
+- Is the recommended intervention feasible?
+- Are cost and convenience considered?
+- Is the effect size clinically meaningful?
+
+### Rating Criteria
+- **Excellent**: Clear clinical applicability, practical recommendations
+- **Good**: Generally relevant; minor practicality concerns
+- **Fair**: Limited clinical applicability or unrealistic recommendations
+- **Poor**: Clinically irrelevant or impractical recommendations presented as actionable
+
+---
+
+## 15. Information Completeness
+
+### Check Items
+- Is important information missing (side effects, limitations, alternatives)?
+- Is there selective presentation of favorable information only?
+- Are both risks and benefits presented?
+- Is the range of treatment options comprehensive?
+
+### Media-Specific Notes
+- **Social media**: Brevity is expected, but critical safety information must not be omitted
+- **Marketing**: Fair balance regulations require disclosure of risks alongside benefits
+- **Patient materials**: Must include when to seek professional help
+- **Guidelines**: Should address both what to do and what not to do
+
+### Rating Criteria
+- **Excellent**: Comprehensive, balanced information for informed decision-making
+- **Good**: Mostly complete; minor gaps
+- **Fair**: Notable omissions that could affect decision-making
+- **Poor**: Critical information missing, or deliberately one-sided presentation

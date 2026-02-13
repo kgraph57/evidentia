@@ -1,198 +1,322 @@
 ---
 name: medical-fact-check
-description: 医学情報のファクトチェックと批評的評価を行うスキル。論文、記事、SNS投稿、ニュースレター、患者向け資料など、あらゆる医学情報の正確性、エビデンスレベル、表現の適切性を包括的に評価し、構造化されたレポートを生成する。使用場面：医学情報の信頼性を確認したい時、自分が作成した医療コンテンツの品質を確認したい時、記事や投稿の問題点を特定して改善したい時。トリガー：「ファクトチェック」「この記事を評価して」「エビデンスチェック」「医学情報の確認」「この投稿の問題点」等。
+description: "Comprehensive medical fact-checking and critical appraisal skill. Evaluates any medical content — research papers, articles, social media posts, newsletters, YouTube/podcast transcripts, conference slides, clinical guidelines, pharma marketing, patient leaflets, health app content, and more — across 15 criteria for accuracy, evidence quality, and appropriateness. Generates a structured Markdown report with an A–F score and actionable improvement suggestions. Triggers: 'fact-check', 'evidence check', 'evaluate this article', 'check this post', 'ファクトチェック', 'エビデンスチェック', 'この記事を評価して', 'この投稿の問題点'."
 ---
 
-# Medical Fact Check
+# Medical Fact-Check Skill
 
-医学情報の批評的評価とファクトチェックを行い、構造化されたレポートを生成するスキル。
+Comprehensive critical appraisal and fact-checking for medical information, producing a structured report.
 
-## 概要
+## Overview
 
-このスキルは、医学情報の正確性、エビデンスレベル、表現の適切性を15の評価項目で包括的にチェックし、問題点の指摘と具体的な改善案を含む構造化レポートを提供する。
+This skill evaluates medical information across **15 criteria** — evidence quality, citation accuracy, statistical interpretation, ethical considerations, and more — then generates a structured Markdown report with an overall **A–F score** and actionable improvement suggestions.
 
-**対象となる医学情報**:
-- 学術論文・総説
-- 一般向け医療記事・ブログ
-- SNS投稿（X、note、ブログなど）
-- ニュースレター・患者向け資料
-- 医療系Webサイトのコンテンツ
-- 自分で作成した医学コンテンツ
+### Supported Media Types
 
-**評価の15項目**:
-1. エビデンスレベルと研究デザイン
-2. 引用と出典の正確性
-3. 統計の解釈
-4. 因果関係と相関の区別
-5. バイアスと利益相反
-6. 誇張表現と断定的表現
-7. 対象集団の適切性
-8. 時間的妥当性
-9. 専門用語と平易さのバランス
-10. 倫理的配慮
-11. 論理的一貫性
-12. 画像・図表の適切性
-13. 代替説明の考慮
-14. 実用性と臨床的意義
-15. 情報の完全性
+The skill auto-detects the content type and adjusts its evaluation accordingly:
 
-## 実行手順
+| Category | Examples | Key Focus |
+|----------|----------|-----------|
+| **Research papers** | Journal articles, preprints, systematic reviews | Evidence level, methodology, statistical rigor |
+| **News & articles** | Health news, medical blogs, magazine articles | Accuracy of claims, source attribution, exaggeration |
+| **Social media** | X (Twitter), Instagram, TikTok captions, Reddit, note | Brevity-induced omissions, clickbait, misinformation risk |
+| **Newsletters** | Email newsletters, Substack, medical columns | Citation completeness, audience calibration |
+| **Patient materials** | Leaflets, brochures, hospital handouts | Readability, completeness, fear-mongering |
+| **Video/audio transcripts** | YouTube, podcasts, webinar transcripts | Verbal exaggeration, missing nuance, source attribution |
+| **Presentations** | Conference slides, lecture materials, grand rounds | Slide oversimplification, citation on slides |
+| **Clinical guidelines** | Practice guidelines, protocols, algorithms | AGREE II compliance, evidence grading, conflicts of interest |
+| **Marketing materials** | Pharma ads, medical device brochures, supplement claims | Regulatory compliance, selective data presentation, COI |
+| **Health apps & digital** | App descriptions, chatbot outputs, AI-generated content | Hallucination detection, accuracy of automated advice |
+| **Textbooks & education** | Textbook chapters, CME/CPD materials, study guides | Currency, completeness, pedagogical accuracy |
+| **Infographics** | Visual summaries, data visualizations, social cards | Data integrity, oversimplification, source attribution |
 
-### Step 1: 対象情報の取得と分析
+### The 15 Evaluation Criteria
 
-ユーザーから評価対象の医学情報を受け取る。URLの場合はWebFetchツールで内容を取得し、テキストやファイルの場合はReadツールで読み込む。
+1. Evidence level & study design
+2. Citation & source accuracy (incl. AI hallucination detection)
+3. Statistical interpretation
+4. Causation vs. correlation
+5. Bias & conflicts of interest
+6. Exaggeration & overclaiming
+7. Target population fit
+8. Temporal validity
+9. Jargon–readability balance
+10. Ethical considerations
+11. Logical consistency
+12. Images & figures
+13. Alternative explanations
+14. Clinical relevance
+15. Information completeness
 
-以下を特定する:
-- **情報の種類**: 論文、記事、SNS投稿、患者向け資料など
-- **対象読者**: 一般向け、医療従事者向け、患者向けなど
-- **主要な主張**: 何を伝えようとしているか
-- **引用の有無**: エビデンスが示されているか
+### Scoring
 
-### Step 2: チェックリストの読み込み
+Each item is rated **Excellent / Good / Fair / Poor**. The overall score:
 
-Readツールで `~/.claude/skills/medical-fact-check/references/checklist.md` を読み、15の評価項目の詳細を確認する。
+| Score | Criteria |
+|-------|----------|
+| **A** | 12+ Excellent, 0 Poor |
+| **B** | 12+ Excellent or Good, ≤1 Poor |
+| **C** | 12+ Fair or better, ≤2 Poor |
+| **D** | 3+ Poor |
+| **F** | 5+ Poor, or critical ethical issues |
 
-### Step 3: エビデンスレベルの評価（必要に応じて）
+## Workflow
 
-対象情報が研究論文を引用している場合、Readツールで `~/.claude/skills/medical-fact-check/references/evidence-levels.md` を参照してエビデンスの質を評価する。
+### Step 1: Acquire & Analyze
 
-以下の点を評価:
-- 研究デザインの種類（RCT、コホート、症例報告など）
-- 研究の質（バイアスリスク、サンプルサイズなど）
-- GRADE評価による総合的な質の判定
-- 小児科領域での特殊性（該当する場合）
+Receive the target medical content from the user. Depending on the input format:
 
-### Step 4: 引用論文の確認
+- **URL** — use `WebFetch` to retrieve the content
+- **File path** — use `Read` to load the file
+- **Pasted text** — analyze directly
+- **Video/audio** — if a transcript is provided, analyze it; if a URL is given, attempt to retrieve transcript via WebFetch
 
-対象情報が論文を引用している場合、WebSearchツールで原著論文を検索し確認する:
-1. DOI、PMID、論文タイトルから論文を検索
-2. 抄録または本文を確認し、引用内容の正確性を検証
-3. 引用の文脈が適切か（チェリーピッキングされていないか）を評価
-4. **DOI実在確認**: DOIが付与されている場合、そのDOIが指す実際の論文と引用情報（著者名、タイトル、ジャーナル名）を照合する
+Identify the following:
 
-**AI生成コンテンツの引用検証（重要）**:
+- **Content type**: research paper, blog post, social media, patient leaflet, video transcript, etc.
+- **Target audience**: general public, healthcare professionals, patients, researchers, etc.
+- **Main claims**: what the content is asserting
+- **Citations present**: whether evidence is referenced
+- **Language**: the language of the content (evaluate in the original language)
+- **Public health risk level**: LOW (educational, niche), MEDIUM (widely shared, actionable claims), HIGH (viral content, safety-critical claims, vulnerable populations)
 
-AI（ChatGPT、Claude等）が生成した文章には、もっともらしいが実在しない引用（ハルシネーション）が含まれることがある。「検索で確認できなかった」場合、以下を追加で確認する:
-- DOIが別の論文を指していないか（DOIで直接検索し、タイトル・著者を照合）
-- 著者名は実在するか、その分野の研究者か
-- ジャーナル名とボリューム/ページ番号が整合するか
+#### Media-Specific Pre-Analysis
 
-確認結果に応じて以下のように分類する:
-- **引用確認済み**: 論文が実在し、内容が引用と一致
-- **引用内容不一致**: 論文は実在するが、引用された内容と異なる
-- **書誌情報不一致**: 論文は実在するが、DOI/著者名/ジャーナル等が異なる
-- **ハルシネーション引用**: DOIが別論文を指す、または論文自体が実在しない
+Adjust the evaluation lens based on detected media type:
 
-### Step 5: 各項目の詳細評価
+**Social media posts:**
+- Character/space constraints may justify brevity, but core accuracy must be maintained
+- Check for misleading compression of complex findings
+- Evaluate whether the post drives readers to reliable sources
 
-15項目それぞれについて、以下の観点で評価する:
+**Video/podcast transcripts:**
+- Verbal hedging may be lost in transcription — look for spoken qualifiers
+- Hosts may editorialize beyond guest experts' actual statements
+- Check if timestamps or show notes reference sources
 
-**評価の観点**:
-- **現状**: 対象情報の現在の状態を客観的に記述
-- **問題点**: 具体的な問題点を明確に指摘（問題がない場合は「特になし」）
-- **改善案**: 具体的で実行可能な改善提案（問題がある場合）
-- **評価**: 優/良/可/不可の4段階で評価
+**Marketing materials:**
+- Apply heightened scrutiny for selective data presentation
+- Check regulatory compliance (FDA, PMDA, EMA guidelines for claims)
+- Identify undisclosed conflicts of interest
 
-**評価基準**:
-- **優**: 問題なし、模範的
-- **良**: 軽微な改善の余地あり
-- **可**: 改善が望ましい
-- **不可**: 重大な問題あり、修正が必要
+**Clinical guidelines:**
+- Apply AGREE II framework for guideline quality assessment
+- Check for systematic evidence review methodology
+- Verify COI disclosures of guideline panel members
 
-### Step 6: 総合評価の決定
+**AI-generated content:**
+- Apply maximum citation verification rigor (hallucination detection)
+- Check for "confident but wrong" patterns typical of LLM output
+- Verify all specific numbers, dates, and named entities
 
-15項目の評価を総合し、以下の基準で総合スコアを決定:
+### Step 2: Load Evaluation Checklist
 
-- **A**: 優が12項目以上、不可が0項目
-- **B**: 優または良が12項目以上、不可が1項目以下
-- **C**: 可以上が12項目以上、不可が2項目以下
-- **D**: 不可が3項目以上
-- **F**: 不可が5項目以上、または重大な倫理的問題あり
+Read `~/.claude/skills/medical-fact-check/references/checklist.md` with the `Read` tool to load the detailed 15-item evaluation checklist.
 
-### Step 7: レポート生成
+### Step 3: Assess Evidence Levels
 
-Readツールで `~/.claude/skills/medical-fact-check/templates/report-template.md` を読み込み、テンプレートに従ってレポートを作成する。
+If the content references research studies, read `~/.claude/skills/medical-fact-check/references/evidence-levels.md` with the `Read` tool and evaluate:
 
-**必須セクション**:
-1. **対象情報の概要**: タイトル、情報源、対象読者、評価日
-2. **総合評価**: 総合スコア、主要な問題点の要約、推奨アクション
-3. **詳細評価**: 15項目それぞれの評価（現状、問題点、改善案）
-4. **重大な懸念事項**: 特に重大な問題がある場合
-5. **優れている点**: 評価できる点
-6. **修正案の具体例**: 修正前後の比較（問題がある場合）
-7. **参考資料**: 評価の根拠となった情報源
-8. **評価者コメント**: 総合的な所見
+- Study design type (RCT, cohort, case report, etc.)
+- Study quality (bias risk, sample size, etc.)
+- GRADE assessment for overall quality
+- Domain-specific considerations (pediatrics, oncology, etc.)
 
-### Step 8: レポートの配信
+### Step 4: Verify Citations
 
-完成したレポートをWriteツールでMarkdownファイルとして保存する:
-- ファイルパス: カレントディレクトリに `medical-fact-check-report-YYYY-MM-DD.md` として保存
-- ユーザーにファイルパスとレポートの要約を伝える
+If the content cites papers or sources, verify them using `WebSearch`:
 
-### Step 9: 修正後の再検証（任意）
+1. **Search** by DOI, PMID, or title to locate the original paper
+2. **Cross-check** the abstract or full text against the cited claims
+3. **Evaluate context** — is the citation cherry-picked or accurately represented?
+4. **DOI cross-verification** — if a DOI is provided, confirm the DOI resolves to the claimed paper (matching title, authors, journal)
 
-記事がレポートに基づいて修正された場合、修正版を再度読み込み以下を更新する:
+#### AI Hallucination Detection (Critical)
 
-1. 修正が適切に反映されたかを確認
-2. レポートの「推奨アクション」チェックリストを更新（修正済みの項目にチェックを入れる）
-3. 修正によって新たに生じた問題がないかを確認（参考文献番号のずれ等）
-4. 未対応の問題を再度明示
-5. 更新されたレポートを保存（ファイル名末尾に `-rev2` 等を付与）
+AI-generated text (ChatGPT, Claude, Gemini, etc.) frequently contains plausible but fabricated citations. When a citation cannot be confirmed, perform these additional checks:
 
-## 特殊なケースの対応
+- Does the DOI point to a completely different paper? (Search the DOI directly and compare title/authors)
+- Does the author actually exist and publish in this field?
+- Do the journal name, volume, and page numbers match a real publication?
 
-### SNS投稿やニュースレターの場合
+**Do NOT stop at "could not verify."** Actively determine whether the citation is unverifiable or provably fabricated.
 
-短い形式の情報は、限られたスペースでの正確性が課題:
-1. 短い文章でも重要な留保事項が省略されていないか
-2. タイトルと内容の乖離（クリックベイト）がないか
-3. 誤解を招く表現や誇張がないか
-4. 情報源や根拠が示されているか
+Classify each citation into one of 4 tiers:
 
-### 小児科領域の情報の場合
+| Tier | Classification | Description |
+|------|---------------|-------------|
+| 1 | **Verified** | Paper exists and content matches the citation |
+| 2 | **Content mismatch** | Paper exists but is cited out of context |
+| 3 | **Bibliographic mismatch** | Paper exists but DOI, author, or journal info is wrong |
+| 4 | **Hallucination** | DOI points to an unrelated paper, or the paper does not exist |
 
-小児科領域の情報は特別な配慮が必要:
-1. 成人の研究を小児に一般化していないか
-2. 年齢層（新生児、乳児、幼児、学童、思春期）の区別が適切か
-3. 小児特有の生理学的特性が考慮されているか
-4. 成長発達への長期的影響が言及されているか
+### Step 5: Detailed Evaluation
 
-### 一般向け情報の場合
+Rate each of the 15 items using these dimensions:
 
-一般向けの情報は、正確さと平易さのバランスが重要:
-1. 専門用語が適切に説明されているか
-2. 過度な簡略化による誤解の可能性はないか
-3. 恐怖を煽る表現や不安を過度に増大させる内容はないか
-4. 患者の意思決定に必要な情報が網羅されているか
+- **Current state**: objective description of how the content handles this criterion
+- **Issues**: specific problems identified (or "None")
+- **Suggestions**: concrete, actionable improvements (if issues exist)
+- **Rating**: Excellent / Good / Fair / Poor
 
-## レポート作成のベストプラクティス
+#### Media-Specific Evaluation Adjustments
 
-1. **具体的であること**: 「問題がある」ではなく、「どこに、どのような問題があるか」を明示
-2. **建設的であること**: 批判だけでなく、具体的な改善案を提示
-3. **バランスを取ること**: 問題点だけでなく、優れている点も評価
-4. **根拠を示すこと**: 評価の根拠となるガイドラインや論文を参考資料として提示
-5. **対象読者を考慮すること**: 一般向けと専門家向けでは評価基準が異なる
-6. **実行可能性を重視すること**: 改善案は現実的で実行可能なものにする
+| Criterion | Social Media | Marketing | Guidelines | Patient Materials |
+|-----------|-------------|-----------|------------|-------------------|
+| #1 Evidence level | Expect source links | Heightened scrutiny | GRADE required | Simplified OK |
+| #2 Citations | At minimum, name sources | Full disclosure required | Systematic search required | Source available on request |
+| #6 Exaggeration | Very common — flag aggressively | Primary concern | Should be absent | Watch for false reassurance |
+| #7 Population fit | Often ignored — flag | Check indication scope | Must be explicit | Must match audience |
+| #9 Readability | Platform-appropriate | Accessible to HCPs + public | HCP-level acceptable | 6th-grade reading level |
+| #10 Ethics | Check stigma/fear | Check manipulation | Check COI panel | Check dignity/autonomy |
+| #12 Images | Memes, infographics | Selective visuals | Evidence figures | Clear illustrations |
 
-## 評価時の注意点
+### Step 6: Determine Overall Score
 
-1. **完璧主義を避ける**: 全ての情報が完璧である必要はない。対象読者と目的に応じた適切性を評価
-2. **文脈を考慮する**: 情報の目的、対象読者、媒体の制約を理解する
-3. **最新の知見を参照する**: WebSearchツールで評価時点での最新のガイドラインやコンセンサスを確認
-4. **専門性の範囲を認識する**: 不確実な場合は「専門家への確認を推奨」と記載
-5. **利益相反を開示する**: AI評価の限界を明示
+Aggregate the 15 item ratings into an A–F score using the criteria table in the Overview section.
 
-## 参考資料
+Additionally, flag a **Public Health Risk Assessment**:
 
-スキル内の詳細な参考資料:
-- `references/checklist.md`: 15の評価項目の詳細
-- `references/evidence-levels.md`: エビデンスレベルの評価基準
-- `templates/report-template.md`: レポートのテンプレート
+- **LOW RISK**: Content is broadly accurate; issues are minor or stylistic
+- **MEDIUM RISK**: Content has meaningful inaccuracies that could mislead readers
+- **HIGH RISK**: Content promotes harmful actions, contains fabricated evidence, or targets vulnerable populations with dangerous misinformation
 
-外部の主要な参考資料:
+### Step 7: Generate Report
+
+Read the report template from `~/.claude/skills/medical-fact-check/templates/report-template.md` with the `Read` tool and produce the structured report.
+
+**Required sections:**
+1. Content Overview — title, source, audience, date, media type
+2. Overall Assessment — score, key issues summary, risk level, recommended actions
+3. Detailed Evaluation — all 15 items with ratings, issues, and suggestions
+4. Citation Verification Results — tier classification for each citation (if applicable)
+5. Critical Concerns — flagged high-severity issues
+6. Strengths — positive aspects worth noting
+7. Suggested Corrections — before/after comparison text (if issues found)
+8. References — sources used during evaluation
+9. Evaluator Notes — overall commentary and caveats
+
+### Step 8: Deliver Report
+
+Save the completed report as a Markdown file using `Write`:
+
+- **File name**: `medical-fact-check-report-YYYY-MM-DD.md` in the current directory
+- If a report with that name already exists, append a suffix: `-2`, `-3`, etc.
+- Provide the user with:
+  - The file path
+  - A concise summary of findings (3–5 sentences)
+  - The overall score and risk level
+  - Top 3 most important issues to address
+
+### Step 9: Post-Correction Re-Verification (Optional)
+
+If the user revises the content based on the report and requests re-evaluation:
+
+1. Re-read the revised content
+2. Check that flagged issues have been properly addressed
+3. Update the recommended-actions checklist (mark resolved items)
+4. Verify that corrections haven't introduced new problems (e.g., shifted reference numbers)
+5. List any remaining unresolved issues
+6. Save the updated report with a `-rev2` (or `-rev3`, etc.) suffix
+
+## Media-Specific Handling
+
+### Social Media Posts
+
+Short-form content requires particular attention to:
+- Accuracy maintained despite brevity constraints
+- Absence of critical caveats or disclaimers
+- Clickbait titles or misleading framing
+- Whether sources are linked or accessible
+- Potential for viral spread of misinformation (amplification risk)
+
+### Video & Podcast Transcripts
+
+Audio/video content often has unique issues:
+- Host editorialization beyond guest expert statements
+- Verbal hedging that doesn't survive transcription
+- Unsubstantiated anecdotes presented as evidence
+- Missing visual context in audio-only formats
+- Show notes or descriptions that may overstate content
+
+### Conference Presentations & Slides
+
+Slide decks present compressed information:
+- Oversimplification of complex findings to fit slides
+- Missing citations on individual slides
+- Unpublished data presented without caveats
+- Potential COI with industry-sponsored presentations
+- Conclusions drawn from preliminary/incomplete data
+
+### Clinical Guidelines
+
+Guidelines demand the highest methodological standards:
+- AGREE II framework compliance
+- Systematic literature review methodology
+- GRADE evidence assessment
+- Panel member COI disclosures
+- Update currency and version control
+- Patient/public involvement in development
+
+### Pharmaceutical & Device Marketing
+
+Marketing materials require heightened skepticism:
+- Selective presentation of favorable trial results
+- Relative risk reduction without absolute figures
+- Off-label use implications
+- Regulatory compliance of claims
+- Fair balance between efficacy and safety data
+- Comparator selection bias
+
+### AI-Generated Medical Content
+
+LLM-generated content requires the most rigorous citation checking:
+- Apply hallucination detection to ALL citations
+- Verify specific statistics, percentages, and dates
+- Check for "confident confabulation" — authoritative tone on incorrect facts
+- Flag instances where the AI fills knowledge gaps with plausible fiction
+- Verify named entities (researchers, institutions, journals)
+
+### Patient-Facing Materials
+
+Patient materials prioritize accessibility and safety:
+- Reading level appropriate for target audience (aim for 6th-grade level for general public)
+- No unnecessary fear-mongering or false reassurance
+- Clear action items and when to seek professional help
+- Respect for patient autonomy and informed decision-making
+- Cultural sensitivity and inclusivity
+
+## Best Practices for Report Writing
+
+1. **Be specific** — not "there is a problem" but "Section 3, paragraph 2 claims X, but the cited study actually found Y"
+2. **Be constructive** — always pair criticism with a concrete suggestion
+3. **Be balanced** — acknowledge strengths alongside weaknesses
+4. **Cite your sources** — reference the guidelines or papers that inform your evaluation
+5. **Consider the audience** — evaluation standards differ for professional vs. public content
+6. **Stay practical** — improvement suggestions should be realistic and actionable
+7. **Disclose limitations** — acknowledge what this AI-based review can and cannot verify
+
+## Caveats
+
+1. **Not a substitute for expert judgment** — this is an AI-based evaluation tool
+2. **Full-text access is limited** — verification relies on abstracts, open-access articles, and bibliographic metadata
+3. **Image evaluation is limited** — cannot deeply analyze embedded figures or video content
+4. **Rapidly evolving fields** — the most current evidence may not yet be indexed
+5. **Final medical decisions** should always be made by qualified healthcare professionals
+
+## Reference Files
+
+- `references/checklist.md` — detailed 15-item evaluation checklist
+- `references/evidence-levels.md` — evidence hierarchy & quality assessment tools
+- `templates/report-template.md` — structured report template
+
+## External References
+
 - Cochrane Handbook for Systematic Reviews of Interventions
 - GRADE Working Group
 - AGREE II (Appraisal of Guidelines for Research & Evaluation)
-- 日本小児科学会ガイドライン
-- American Academy of Pediatrics (AAP) Guidelines
-- WHO Evidence-Based Medicine Guidelines
+- AMSTAR 2 (A MeAsurement Tool to Assess systematic Reviews)
+- CONSORT, STROBE, PRISMA reporting guidelines
+- FDA / PMDA / EMA advertising and promotion regulations
+- DISCERN (quality of health information for patients)
+- HONcode (Health On the Net Foundation)

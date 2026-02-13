@@ -1,288 +1,307 @@
-# 医学情報ファクトチェックレポート
+# Medical Fact-Check Report
 
-## 対象情報の概要
+## 1. Content Overview
 
-**タイトル**: [情報のタイトル]
-**情報源**: [URL、出版物名、著者など]
-**対象読者**: [一般向け/医療従事者向け/患者向け など]
-**評価日**: [YYYY-MM-DD]
-
----
-
-## 総合評価
-
-**総合スコア**: [A/B/C/D/F]
-
-**主要な問題点の要約**:
-[3-5行で主要な問題点を簡潔に要約]
-
-**推奨アクション**:
-- [ ] 修正が必要
-- [ ] 部分的な修正を推奨
-- [ ] 軽微な改善を推奨
-- [ ] 問題なし
+**Title**: [Title of the content]
+**Source**: [URL, publication name, author, etc.]
+**Media type**: [Research paper / Blog post / Social media / Newsletter / Video transcript / Slides / Guideline / Marketing / Patient leaflet / AI-generated / Other]
+**Target audience**: [General public / Healthcare professionals / Patients / Researchers]
+**Evaluation date**: [YYYY-MM-DD]
+**Language**: [Language of the evaluated content]
 
 ---
 
-## 詳細評価
+## 2. Overall Assessment
 
-### 1. エビデンスレベルと研究デザイン
+**Overall score**: [A / B / C / D / F]
 
-**評価**: [優/良/可/不可]
+**Public health risk level**: [LOW / MEDIUM / HIGH]
 
-**現状**:
-[引用されている研究の種類、エビデンスレベル、研究の質について記述]
+**Key issues summary**:
+[3–5 sentences summarizing the most important findings]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Recommended actions**:
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 2. 引用と出典の正確性
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[引用の有無、引用方法、出典の明示について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+- [ ] Critical corrections required
+- [ ] Partial corrections recommended
+- [ ] Minor improvements suggested
+- [ ] No issues found
 
 ---
 
-### 3. 統計の解釈
+## 3. Detailed Evaluation
 
-**評価**: [優/良/可/不可]
+### 3.1 Evidence Level & Study Design
 
-**現状**:
-[統計データの使用方法、解釈の適切性について記述]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Current state**:
+[Description of evidence types cited, study designs referenced, and quality of evidence basis]
 
-**改善案**:
-- [具体的な改善提案をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
----
-
-### 4. 因果関係と相関の区別
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[因果関係と相関の扱い方について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 5. バイアスと利益相反
+### 3.2 Citation & Source Accuracy
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[利益相反の開示、バイアスの可能性について記述]
+**Current state**:
+[Description of citation practices, source attribution, and verification results]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 6. 誇張表現と断定的表現
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[表現の適切性、誇張の有無について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 7. 対象集団の適切性
+### 3.3 Statistical Interpretation
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[研究対象と適用対象の一致性について記述]
+**Current state**:
+[Description of statistical data usage and interpretation accuracy]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 8. 時間的妥当性
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[情報の新しさ、最新のコンセンサスとの整合性について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 9. 専門用語と平易さのバランス
+### 3.4 Causation vs. Correlation
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[用語の使用、対象読者への適切性について記述]
+**Current state**:
+[Description of causal claims and their justification]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 10. 倫理的配慮
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[倫理的配慮、患者への配慮について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 11. 論理的一貫性
+### 3.5 Bias & Conflicts of Interest
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[論理構成、主張と根拠の整合性について記述]
+**Current state**:
+[Description of COI disclosure, potential biases, and funding transparency]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 12. 画像・図表の適切性
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[画像・図表の使用、出典の明示について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 13. 代替説明の考慮
+### 3.6 Exaggeration & Overclaiming
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[複数の視点の提示、議論の余地の認識について記述]
+**Current state**:
+[Description of language appropriateness, hedging, and claims vs. evidence alignment]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-### 14. 実用性と臨床的意義
-
-**評価**: [優/良/可/不可]
-
-**現状**:
-[実臨床への適用可能性、臨床的意義について記述]
-
-**問題点**:
-- [具体的な問題点をリスト]
-
-**改善案**:
-- [具体的な改善提案をリスト]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-### 15. 情報の完全性
+### 3.7 Target Population Fit
 
-**評価**: [優/良/可/不可]
+**Rating**: [Excellent / Good / Fair / Poor]
 
-**現状**:
-[情報の網羅性、バランスについて記述]
+**Current state**:
+[Description of population match between studies cited and audience addressed]
 
-**問題点**:
-- [具体的な問題点をリスト]
+**Issues**:
+- [Specific issues, or "None"]
 
-**改善案**:
-- [具体的な改善提案をリスト]
-
----
-
-## 重大な懸念事項
-
-[特に重大な問題がある場合、ここに強調して記載]
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-## 優れている点
+### 3.8 Temporal Validity
 
-[情報の中で特に優れている点、評価できる点をリスト]
+**Rating**: [Excellent / Good / Fair / Poor]
 
----
+**Current state**:
+[Description of information currency and alignment with current guidelines]
 
-## 修正案の具体例
+**Issues**:
+- [Specific issues, or "None"]
 
-### 修正前
-```
-[問題のある記述の具体例]
-```
-
-### 修正後
-```
-[改善された記述の具体例]
-```
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-## 参考資料
+### 3.9 Jargon–Readability Balance
 
-[評価の根拠となった最新のガイドライン、論文、信頼できる情報源のリスト]
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of terminology appropriateness for the target audience]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
 
 ---
 
-## 評価者コメント
+### 3.10 Ethical Considerations
 
-[総合的な所見、追加のコメント]
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of ethical aspects: stigma, fear-mongering, patient dignity, autonomy]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+### 3.11 Logical Consistency
+
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of logical flow, coherence between claims and evidence]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+### 3.12 Images & Figures
+
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of visual elements, data visualization accuracy, and sourcing]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+### 3.13 Alternative Explanations
+
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of balance in viewpoints, acknowledgment of competing interpretations]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+### 3.14 Clinical Relevance
+
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of real-world applicability and clinical significance]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+### 3.15 Information Completeness
+
+**Rating**: [Excellent / Good / Fair / Poor]
+
+**Current state**:
+[Description of coverage of risks, benefits, alternatives, and limitations]
+
+**Issues**:
+- [Specific issues, or "None"]
+
+**Suggestions**:
+- [Actionable improvement suggestions, if applicable]
+
+---
+
+## 4. Citation Verification Results
+
+[Include this section when the content contains citations. Omit if no citations are present.]
+
+| # | Citation | Tier | Classification | Notes |
+|---|----------|------|---------------|-------|
+| 1 | [Author, Year, Journal] | [1–4] | [Verified / Content mismatch / Bibliographic mismatch / Hallucination] | [Details] |
+
+**Summary**: [X] of [Y] citations verified. [Z] hallucinations detected.
+
+---
+
+## 5. Critical Concerns
+
+[Flag any high-severity issues that require immediate attention. If none, state "No critical concerns identified."]
+
+---
+
+## 6. Strengths
+
+[List positive aspects of the content that are worth noting.]
+
+---
+
+## 7. Suggested Corrections
+
+[Provide before/after examples for the most important issues.]
+
+### Example 1
+
+**Before**:
+> [Problematic text]
+
+**After**:
+> [Corrected text]
+
+---
+
+## 8. References
+
+[List the guidelines, papers, and trusted sources used during this evaluation.]
+
+---
+
+## 9. Evaluator Notes
+
+[Overall commentary, caveats about the evaluation, and any limitations of this AI-based review.]
+
+**Disclaimer**: This report was generated by an AI-based evaluation tool and does not replace expert medical judgment. Final medical decisions should always be made by qualified healthcare professionals.
