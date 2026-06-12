@@ -42,7 +42,7 @@
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js dist/mcp.js",
     "dev": "tsc -w -p tsconfig.json",
     "test": "node --test --experimental-strip-types test/*.test.ts",
-    "test:unit": "node --test --experimental-strip-types test/extract.test.ts test/classify.test.ts test/report.test.ts test/text.test.ts",
+    "test:unit": "node --test --experimental-strip-types test/extract.test.ts test/classify.test.ts test/report.test.ts test/text.test.ts test/aggregate.test.ts",
     "test:live": "EVIDENTIA_LIVE=1 node --test --experimental-strip-types test/verify.live.test.ts",
     "bench": "node benchmark/run.mjs",
     "prepublishOnly": "npm run build"

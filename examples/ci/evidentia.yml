@@ -39,14 +39,6 @@ jobs:
             echo "No Markdown changes to check."
             exit 0
           fi
-          status=0
-          for f in "${files[@]}"; do
-            echo "::group::Evidentia — $f"
-            # --fail-on-fabrication exits 1 if any citation is mismatch/hallucination.
-            npx -y evidentia check "$f" --fail-on-fabrication || status=1
-            echo "::endgroup::"
-          done
-          if [ "$status" -ne 0 ]; then
-            echo "::error::Evidentia found at least one fabricated or mismatched citation."
-          fi
-          exit "$status"
+          # Evidentia checks all files at once and exits 1 (via --fail-on-fabrication)
+          # if any citation across them is a mismatch or hallucination.
+          npx -y evidentia check "${files[@]}" --fail-on-fabrication

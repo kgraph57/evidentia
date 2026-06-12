@@ -50,6 +50,10 @@ function tally(citations: VerifiedCitation[]): VerifyReport['counts'] {
 export async function verifyText(text: string, opts: VerifyOptions = {}): Promise<VerifyReport> {
   const extracted = extractCitations(text);
   const citations = await mapLimit(extracted, 4, (c) => verifyCitation(c, opts));
+  return buildReport(citations);
+}
+
+function buildReport(citations: VerifiedCitation[]): VerifyReport {
   const counts = tally(citations);
   const fabricated = counts['Bibliographic mismatch'] + counts.Hallucination;
   return {
@@ -59,4 +63,16 @@ export async function verifyText(text: string, opts: VerifyOptions = {}): Promis
     fabricationRate: citations.length ? fabricated / citations.length : 0,
     citations,
   };
+}
+
+/**
+ * Combine several per-source reports into one aggregate report (re-indexing
+ * citations sequentially). Useful for `evidentia check a.md b.md …` and CI.
+ */
+export function aggregateReports(reports: VerifyReport[]): VerifyReport {
+  const citations: VerifiedCitation[] = [];
+  for (const r of reports) {
+    for (const c of r.citations) citations.push({ ...c, index: citations.length + 1 });
+  }
+  return buildReport(citations);
 }

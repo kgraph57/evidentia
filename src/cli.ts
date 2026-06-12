@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
 import { writeFile } from 'node:fs/promises';
-import { verifyText } from './index.ts';
+import { verifyText, aggregateReports } from './index.ts';
 import { renderMarkdown, renderText } from './report.ts';
-import type { VerifyOptions } from './types.ts';
+import type { VerifyOptions, VerifyReport } from './types.ts';
 
 const HELP = `evidentia — catch AI-fabricated medical citations before you publish
 
 USAGE
-  evidentia check <file|url>   Verify citations in a file or web page
-  evidentia check -            Verify citations from stdin
+  evidentia check <file|url> [more files…]   Verify citations in files or a web page
+  evidentia check -                          Verify citations from stdin
   echo "<text>" | evidentia check -
 
 OPTIONS
@@ -23,6 +23,7 @@ OPTIONS
 
 EXAMPLES
   evidentia check article.md
+  evidentia check content/*.md --fail-on-fabrication
   evidentia check https://example.com/health-post --format md --out report.md
   cat draft.txt | evidentia check - --fail-on-fabrication
 
@@ -33,7 +34,7 @@ const VERSION = '1.0.0';
 
 interface Args {
   command?: string;
-  target?: string;
+  targets: string[];
   format: 'md' | 'text' | 'json';
   out?: string;
   mailto?: string;
@@ -45,6 +46,7 @@ interface Args {
 
 function parseArgs(argv: string[]): Args {
   const args: Args = {
+    targets: [],
     format: 'text',
     failOnFabrication: false,
     offline: false,
@@ -83,7 +85,7 @@ function parseArgs(argv: string[]): Args {
     }
   }
   args.command = positional[0];
-  args.target = positional[1];
+  args.targets = positional.slice(1);
   return args;
 }
 
@@ -181,18 +183,9 @@ async function main(): Promise<void> {
     process.exitCode = 2;
     return;
   }
-  if (!args.target) {
+  if (args.targets.length === 0) {
     process.stderr.write('Error: provide a file, URL, or "-" for stdin.\n\n' + HELP);
     process.exitCode = 2;
-    return;
-  }
-
-  let text: string;
-  try {
-    text = await readInput(args.target);
-  } catch (err) {
-    process.stderr.write(`Error reading input: ${(err as Error).message}\n`);
-    process.exitCode = 1;
     return;
   }
 
@@ -201,23 +194,54 @@ async function main(): Promise<void> {
     offline: args.offline,
   };
 
-  const report = await verifyText(text, opts);
+  // Verify each target; a read failure on one file must not abort the others.
+  const perFile: Array<{ target: string; report: VerifyReport }> = [];
+  for (const target of args.targets) {
+    let text: string;
+    try {
+      text = await readInput(target);
+    } catch (err) {
+      process.stderr.write(`Error reading ${target}: ${(err as Error).message}\n`);
+      process.exitCode = 1;
+      continue;
+    }
+    perFile.push({ target, report: await verifyText(text, opts) });
+  }
+
+  if (perFile.length === 0) {
+    process.exitCode = process.exitCode ?? 1;
+    return;
+  }
+
+  const single = perFile.length === 1;
+  const aggregate = single ? perFile[0]!.report : aggregateReports(perFile.map((p) => p.report));
 
   let output: string;
-  if (args.format === 'json') output = JSON.stringify(report, null, 2);
-  else if (args.format === 'md') output = renderMarkdown(report);
-  else output = renderText(report);
+  if (args.format === 'json') {
+    output = single
+      ? JSON.stringify(perFile[0]!.report, null, 2)
+      : JSON.stringify({ files: perFile, aggregate }, null, 2);
+  } else if (args.format === 'md') {
+    output = single
+      ? renderMarkdown(perFile[0]!.report)
+      : perFile.map((p) => `# ${p.target}\n\n${renderMarkdown(p.report)}`).join('\n\n---\n\n');
+  } else {
+    output = single
+      ? renderText(perFile[0]!.report)
+      : perFile.map((p) => `${p.target}\n${renderText(p.report)}`).join('\n\n') +
+        `\n\n── Aggregate across ${perFile.length} files ──\n${renderText(aggregate)}`;
+  }
 
   if (args.out) {
     await writeFile(args.out, output, 'utf8');
     process.stdout.write(`Report written to ${args.out}\n`);
-    process.stdout.write(renderText(report) + '\n');
+    process.stdout.write(renderText(aggregate) + '\n');
   } else {
     process.stdout.write(output + '\n');
   }
 
   if (args.failOnFabrication) {
-    const fabricated = report.counts['Bibliographic mismatch'] + report.counts.Hallucination;
+    const fabricated = aggregate.counts['Bibliographic mismatch'] + aggregate.counts.Hallucination;
     if (fabricated > 0) process.exitCode = 1;
   }
 }

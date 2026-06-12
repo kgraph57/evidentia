@@ -193,8 +193,8 @@ All three registries are free and keyless. Pass `--mailto` to join their faster 
 
 ## Roadmap
 
-- [ ] `evidentia-bench` — an open benchmark of real vs. fabricated medical citations, with per-model fabrication rates
-- [ ] Batch/glob input and a JSON-summary GitHub Action
+- [x] Batch input — `evidentia check a.md b.md …` with an aggregate report ([benchmark: 17/17](benchmark/))
+- [ ] `evidentia-bench` — grow to 100+ cases and publish per-model fabrication rates
 - [ ] CrossRef/OpenAlex abstract retrieval to assist Tier-2 context checks
 - [ ] More media presets in the skill
 

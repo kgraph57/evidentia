@@ -24,8 +24,11 @@ First public release. Evidentia becomes a tool, not just a prompt.
   installable via `/plugin marketplace add kgraph57/evidentia`.
 - **Skill integration**: the 15-criteria appraisal skill now calls the engine for Step 4
   citation verification, using its output as ground truth for citation existence.
+- **Batch input**: `evidentia check a.md b.md …` verifies multiple files and prints an
+  aggregate report; `--fail-on-fabrication` considers all of them (used by the CI example).
 - **Worked examples** with real registry output, a GitHub Actions example for medical
-  content repos, issue templates, and a test suite (22 unit + 5 live API tests).
+  content repos, issue templates, a 17-case live benchmark, and a test suite
+  (38 unit + 5 live API tests).
 
 ### Changed
 
