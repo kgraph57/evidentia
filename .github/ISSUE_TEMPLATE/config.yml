@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/kgraph57/evidentia/discussions
+    about: Ask how to use Evidentia, or share a workflow.
+  - name: Security report
+    url: https://github.com/kgraph57/evidentia/security/advisories/new
+    about: Report a vulnerability privately (see SECURITY.md).

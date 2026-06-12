@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "evidentia",
+  "displayName": "Evidentia — Medical Evidence & Citation Audit",
+  "version": "1.0.0",
+  "description": "Pre-publication evidence audit for medical and health content. Catches AI-fabricated citations and grades any health claim with a 15-criteria, physician-built rubric (A–F report).",
+  "author": {
+    "name": "Ken Okamoto, MD"
+  },
+  "homepage": "https://github.com/kgraph57/evidentia",
+  "repository": "https://github.com/kgraph57/evidentia",
+  "license": "MIT",
+  "keywords": [
+    "medical",
+    "fact-check",
+    "citation-verification",
+    "hallucination-detection",
+    "evidence-based-medicine",
+    "pubmed",
+    "critical-appraisal"
+  ]
+}

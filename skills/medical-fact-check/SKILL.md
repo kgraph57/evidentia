@@ -7,6 +7,20 @@ description: "Comprehensive medical fact-checking and critical appraisal skill. 
 
 Comprehensive critical appraisal and fact-checking for medical information, producing a structured report.
 
+> **Scope.** This is a pre-publication aid for writers, editors, and researchers — **not clinical decision support.** It evaluates how medical *content* is written and sourced; it does not diagnose, treat, or replace professional medical judgment.
+
+> **Reference files.** This skill bundles three reference files. Read them with paths
+> relative to this skill's directory: `references/checklist.md`, `references/evidence-levels.md`,
+> and `templates/report-template.md`. Depending on how the skill was installed, that
+> directory is `~/.claude/skills/medical-fact-check/` (manual copy) or
+> `${CLAUDE_PLUGIN_ROOT}/skills/medical-fact-check/` (installed as the Evidentia plugin).
+>
+> **Deterministic citation engine.** When checking citations (Step 4), prefer the bundled
+> `evidentia` engine over verifying each DOI by hand. If `npx evidentia` is available, it
+> resolves every DOI/PMID against CrossRef, PubMed, and OpenAlex and returns the exact 4-tier
+> classification this skill uses — deterministically, with no risk of the model itself
+> misremembering a paper. See **Step 4** for how to call it.
+
 ## Overview
 
 This skill evaluates medical information across **15 criteria** — evidence quality, citation accuracy, statistical interpretation, ethical considerations, and more — then generates a structured Markdown report with an overall **A–F score** and actionable improvement suggestions.
@@ -111,11 +125,11 @@ Adjust the evaluation lens based on detected media type:
 
 ### Step 2: Load Evaluation Checklist
 
-Read `~/.claude/skills/medical-fact-check/references/checklist.md` with the `Read` tool to load the detailed 15-item evaluation checklist.
+Read `references/checklist.md` (in this skill's directory — see the note at the top) with the `Read` tool to load the detailed 15-item evaluation checklist.
 
 ### Step 3: Assess Evidence Levels
 
-If the content references research studies, read `~/.claude/skills/medical-fact-check/references/evidence-levels.md` with the `Read` tool and evaluate:
+If the content references research studies, read `references/evidence-levels.md` with the `Read` tool and evaluate:
 
 - Study design type (RCT, cohort, case report, etc.)
 - Study quality (bias risk, sample size, etc.)
@@ -124,12 +138,37 @@ If the content references research studies, read `~/.claude/skills/medical-fact-
 
 ### Step 4: Verify Citations
 
-If the content cites papers or sources, verify them using `WebSearch`:
+If the content cites papers or sources, verify them. **Prefer the deterministic engine** for existence and bibliographic checks, then use `WebSearch` for the semantic context check that the engine cannot do.
+
+#### 4a. Run the deterministic engine (existence + bibliographic accuracy)
+
+If `npx evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves every DOI/PMID/NCT against CrossRef, PubMed, OpenAlex, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty — no model guesswork. Books (ISBN), guidelines, and other non-indexed sources are returned as Tier 2 ("verify manually"), never as fabrications:
+
+```bash
+npx evidentia check <file-or-url> --format json --mailto <your-email>
+```
+
+Use its output as the ground truth for citation *existence*:
+
+- **Tier 1 (Verified)** — the paper exists and metadata matches. Proceed to the context check in 4b.
+- **Tier 3 (Bibliographic mismatch)** — a real paper exists, but the DOI/PMID or metadata is wrong. Record the discrepancy.
+- **Tier 4 (Hallucination)** — the identifier resolves to nothing or to a different paper. Flag as a fabricated citation immediately; this is the highest-severity finding.
+
+If the engine is not available, fall back to verifying each identifier manually with `WebSearch` (steps below).
+
+#### 4b. Semantic context check (Tier 2 — the engine cannot do this)
+
+For every citation the engine marked **Verified**, still confirm it is used honestly:
+
+1. **Cross-check** the abstract or full text against the cited claim
+2. **Evaluate context** — is the citation cherry-picked or accurately represented?
+3. Downgrade to **Tier 2 (Content review needed)** if a real paper is being misrepresented or cited out of context.
+
+#### Manual fallback (if the engine is unavailable)
 
 1. **Search** by DOI, PMID, or title to locate the original paper
-2. **Cross-check** the abstract or full text against the cited claims
-3. **Evaluate context** — is the citation cherry-picked or accurately represented?
-4. **DOI cross-verification** — if a DOI is provided, confirm the DOI resolves to the claimed paper (matching title, authors, journal)
+2. **DOI cross-verification** — confirm the DOI resolves to the claimed paper (matching title, authors, journal)
+3. **Cross-check** the abstract against the cited claims and evaluate context
 
 #### AI Hallucination Detection (Critical)
 
@@ -183,7 +222,7 @@ Additionally, flag a **Public Health Risk Assessment**:
 
 ### Step 7: Generate Report
 
-Read the report template from `~/.claude/skills/medical-fact-check/templates/report-template.md` with the `Read` tool and produce the structured report.
+Read the report template from `templates/report-template.md` (in this skill's directory) with the `Read` tool and produce the structured report.
 
 **Required sections:**
 1. Content Overview — title, source, audience, date, media type
