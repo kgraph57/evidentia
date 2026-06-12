@@ -1,0 +1,31 @@
+{
+  "name": "evidentia",
+  "owner": {
+    "name": "Ken Okamoto, MD",
+    "email": "okaken0507@gmail.com"
+  },
+  "description": "Open-source medical evidence & citation audit for AI agents",
+  "plugins": [
+    {
+      "name": "evidentia",
+      "source": "./",
+      "description": "Pre-publication citation verification and evidence evaluation for writers and editors. Catches AI-fabricated citations and grades sources with a 15-criteria, physician-built rubric (A–F report). Not clinical decision support.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Ken Okamoto, MD"
+      },
+      "homepage": "https://github.com/kgraph57/evidentia",
+      "repository": "https://github.com/kgraph57/evidentia",
+      "license": "MIT",
+      "category": "fact-checking",
+      "tags": [
+        "medical",
+        "fact-check",
+        "citation-verification",
+        "hallucination-detection",
+        "evidence-based-medicine",
+        "pubmed"
+      ]
+    }
+  ]
+}

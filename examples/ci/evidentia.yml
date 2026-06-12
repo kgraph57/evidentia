@@ -1,0 +1,52 @@
+# Example: block fabricated citations in a medical/health content repo.
+#
+# Copy this file to .github/workflows/evidentia.yml in your content repository.
+# It runs Evidentia on every changed Markdown file in a pull request and fails
+# the check if any citation is a bibliographic mismatch or a hallucination.
+
+name: Citation check
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+
+permissions:
+  contents: read
+
+jobs:
+  evidentia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Verify citations in changed Markdown
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # Collect changed Markdown files between the PR base and head.
+          mapfile -t files < <(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" -- '*.md' '*.mdx')
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No Markdown changes to check."
+            exit 0
+          fi
+          status=0
+          for f in "${files[@]}"; do
+            echo "::group::Evidentia — $f"
+            # --fail-on-fabrication exits 1 if any citation is mismatch/hallucination.
+            npx -y evidentia check "$f" --fail-on-fabrication || status=1
+            echo "::endgroup::"
+          done
+          if [ "$status" -ne 0 ]; then
+            echo "::error::Evidentia found at least one fabricated or mismatched citation."
+          fi
+          exit "$status"

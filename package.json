@@ -1,0 +1,54 @@
+{
+  "name": "evidentia",
+  "version": "1.0.0",
+  "description": "Catch AI-fabricated medical citations before you publish. Verifies DOIs/PMIDs against CrossRef, PubMed, and OpenAlex; grades the result in a 4-tier classification. CLI + MCP server.",
+  "keywords": [
+    "medical",
+    "fact-check",
+    "citation",
+    "hallucination",
+    "doi",
+    "pubmed",
+    "crossref",
+    "openalex",
+    "evidence-based-medicine",
+    "mcp"
+  ],
+  "homepage": "https://github.com/kgraph57/evidentia#readme",
+  "bugs": "https://github.com/kgraph57/evidentia/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kgraph57/evidentia.git"
+  },
+  "license": "MIT",
+  "author": "Ken Okamoto, MD",
+  "type": "module",
+  "bin": {
+    "evidentia": "dist/cli.js",
+    "evidentia-mcp": "dist/mcp.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js dist/mcp.js",
+    "dev": "tsc -w -p tsconfig.json",
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "test:unit": "node --test --experimental-strip-types test/extract.test.ts test/classify.test.ts test/report.test.ts test/text.test.ts",
+    "test:live": "EVIDENTIA_LIVE=1 node --test --experimental-strip-types test/verify.live.test.ts",
+    "bench": "node benchmark/run.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "typescript": "^5.7.2"
+  }
+}
