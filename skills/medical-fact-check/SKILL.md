@@ -142,7 +142,7 @@ If the content cites papers or sources, verify them. **Prefer the deterministic 
 
 #### 4a. Run the deterministic engine (existence + bibliographic accuracy)
 
-If `npx evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves every DOI/PMID against CrossRef, PubMed, and OpenAlex and returns Tiers 1, 3, and 4 with certainty — no model guesswork:
+If `npx evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves every DOI/PMID/NCT against CrossRef, PubMed, OpenAlex, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty — no model guesswork. Books (ISBN), guidelines, and other non-indexed sources are returned as Tier 2 ("verify manually"), never as fabrications:
 
 ```bash
 npx evidentia check <file-or-url> --format json --mailto <your-email>

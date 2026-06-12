@@ -144,6 +144,40 @@ export async function lookupPubmedByPmid(
   };
 }
 
+/* -------------------------- ClinicalTrials.gov ----------------------- */
+
+interface CtgovStudy {
+  protocolSection?: {
+    identificationModule?: { nctId?: string; briefTitle?: string; officialTitle?: string };
+    statusModule?: { startDateStruct?: { date?: string } };
+    sponsorCollaboratorsModule?: { leadSponsor?: { name?: string } };
+  };
+}
+
+export async function lookupClinicalTrial(
+  nct: string,
+  opts: VerifyOptions,
+): Promise<ResolvedRecord | null> {
+  const data = (await fetchJson(
+    `https://clinicaltrials.gov/api/v2/studies/${encodeURIComponent(nct)}`,
+    opts,
+  )) as CtgovStudy | null;
+  const id = data?.protocolSection?.identificationModule;
+  if (!id?.nctId) return null;
+  const startDate = data?.protocolSection?.statusModule?.startDateStruct?.date;
+  const yearMatch = startDate?.match(/\b(19|20)\d{2}\b/);
+  const sponsor = data?.protocolSection?.sponsorCollaboratorsModule?.leadSponsor?.name;
+  return {
+    source: 'clinicaltrials',
+    nct: id.nctId,
+    title: id.officialTitle ?? id.briefTitle,
+    authors: sponsor ? [sponsor] : [],
+    year: yearMatch ? Number(yearMatch[0]) : undefined,
+    url: `https://clinicaltrials.gov/study/${id.nctId}`,
+    matchScore: 1,
+  };
+}
+
 /* ------------------------------ OpenAlex ----------------------------- */
 
 interface OpenAlexWork {

@@ -11,6 +11,8 @@ function citationId(c: VerifiedCitation): string {
   if (c.doi) return `doi:${c.doi}`;
   if (c.pmid) return `pmid:${c.pmid}`;
   if (c.arxiv) return `arXiv:${c.arxiv}`;
+  if (c.nct) return c.nct;
+  if (c.isbn) return `ISBN:${c.isbn}`;
   return c.claimedTitle ?? '(no identifier)';
 }
 

@@ -4,7 +4,7 @@
 
 ### Catch AI-fabricated medical citations before you publish.
 
-The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, and OpenAlex** and grades each one in a 4-tier classification. The companion **Claude Code skill** adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
+The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion **Claude Code skill** adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
 
 <img src="assets/demo.svg" alt="Evidentia flagging 3 of 4 citations in an AI-generated medical answer as fabricated or mismatched" width="760">
 
@@ -169,14 +169,17 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 
 ## How verification works
 
-For each citation, Evidentia extracts every identifier (DOI, PMID, arXiv) and any nearby title/author/year, then:
+For each citation, Evidentia extracts every identifier (DOI, PMID, arXiv, **NCT trial ID, ISBN**) and any nearby title/author/year, then:
 
 1. **Resolves the DOI** against CrossRef, falling back to OpenAlex.
 2. **Resolves the PMID** against PubMed E-utilities.
-3. If the identifier doesn't resolve, **searches by title** in OpenAlex — this is how it distinguishes *"real paper, wrong DOI"* (Tier 3) from *"this paper does not exist"* (Tier 4).
-4. **Compares** the cited title/authors/year against the registry record to catch a DOI that silently points to a different paper.
+3. **Resolves NCT trial IDs** against ClinicalTrials.gov.
+4. If the identifier doesn't resolve, **searches by title** in OpenAlex — this is how it distinguishes *"real paper, wrong DOI"* (Tier 3) from *"this paper does not exist"* (Tier 4).
+5. **Compares** the cited title/authors/year against the registry record to catch a DOI that silently points to a different paper.
 
-All three registries are free and keyless. Pass `--mailto` to join their faster "polite pool."
+It is deliberately careful about **what it does *not* flag**: a book (ISBN), a clinical guideline, or any source that isn't indexed in these registries is marked *"verify manually"* (Tier 2), never *"hallucination"* — only a failing DOI/PMID/NCT (which is *supposed* to resolve) earns a fabrication verdict. Identifier-less entries in a reference list are surfaced for review rather than silently skipped.
+
+All registries are free and keyless. Pass `--mailto` to join the faster "polite pool."
 
 ## Examples
 

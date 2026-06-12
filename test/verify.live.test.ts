@@ -31,6 +31,16 @@ test('flags a real paper cited with an invented DOI as a mismatch', { skip: !LIV
   assert.equal(r.citations[0]?.tier.tier, 3);
 });
 
+test('verifies a real ClinicalTrials.gov NCT id', { skip: !LIVE }, async () => {
+  const r = await verifyText('The ACTT-1 trial (NCT04280705) of remdesivir.', opts);
+  assert.equal(r.citations[0]?.tier.tier, 1);
+});
+
+test('flags an unregistered NCT id as a hallucination', { skip: !LIVE }, async () => {
+  const r = await verifyText('A study that was never registered. NCT09999999', opts);
+  assert.equal(r.citations[0]?.tier.tier, 4);
+});
+
 test('computes a fabrication rate across a mixed reference list', { skip: !LIVE }, async () => {
   const text = `References
 1. Polack FP. BNT162b2 vaccine. doi:10.1056/NEJMoa2034577

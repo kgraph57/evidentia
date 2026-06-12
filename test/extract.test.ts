@@ -80,6 +80,33 @@ test('does not truncate an over-long digit run into a fake PMID', () => {
   assert.equal(c.length, 0);
 });
 
+test('extracts a ClinicalTrials.gov NCT id', () => {
+  const c = extractCitations('The ACTT-1 trial (NCT04280705) evaluated remdesivir.');
+  assert.equal(c[0]?.nct, 'NCT04280705');
+});
+
+test('extracts and normalizes an ISBN', () => {
+  const c = extractCitations('Nelson Textbook of Pediatrics. ISBN: 978-0-323-52950-1');
+  assert.equal(c[0]?.isbn, '9780323529501');
+});
+
+test('surfaces an identifier-less reference-list entry instead of skipping it', () => {
+  const text = `References
+1. Polack FP. BNT162b2 vaccine. doi:10.1056/NEJMoa2034577
+2. World Health Organization. Recommendations on antenatal care. Geneva: WHO; 2016.`;
+  const c = extractCitations(text);
+  assert.equal(c.length, 2);
+  // The guideline has no identifier but must still appear, as a title-only citation.
+  const guideline = c.find((x) => !x.doi && !x.pmid && !x.nct);
+  assert.ok(guideline, 'guideline reference should be surfaced');
+  assert.match(guideline!.claimedTitle ?? '', /antenatal care/i);
+});
+
+test('does not turn arbitrary numbered prose into citations (no References header)', () => {
+  const c = extractCitations('My steps:\n1. Wake up early.\n2. Drink water.\n3. Go for a run.');
+  assert.equal(c.length, 0);
+});
+
 test('does not bleed one guessed title across multiple identifiers in a span', () => {
   // Two DOIs in a single inline sentence (typical of AI-generated prose).
   const c = extractCitations(

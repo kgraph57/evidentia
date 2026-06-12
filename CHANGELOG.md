@@ -24,6 +24,11 @@ First public release. Evidentia becomes a tool, not just a prompt.
   installable via `/plugin marketplace add kgraph57/evidentia`.
 - **Skill integration**: the 15-criteria appraisal skill now calls the engine for Step 4
   citation verification, using its output as ground truth for citation existence.
+- **Clinical-trial verification**: recognizes ClinicalTrials.gov **NCT** IDs and resolves
+  them against the registry (real → Verified, unregistered → Hallucination).
+- **Book & grey-literature awareness**: an **ISBN**, a clinical guideline, or any source not
+  indexed in these registries is marked *"verify manually"* (Tier 2) — never a false
+  hallucination. Identifier-less entries in a reference list are surfaced, not skipped.
 - **Batch input**: `evidentia check a.md b.md …` verifies multiple files and prints an
   aggregate report; `--fail-on-fabrication` considers all of them (used by the CI example).
 - **Worked examples** with real registry output, a GitHub Actions example for medical

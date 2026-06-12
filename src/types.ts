@@ -19,6 +19,10 @@ export interface ExtractedCitation {
   pmid?: string;
   /** arXiv ID, if one was found. */
   arxiv?: string;
+  /** ClinicalTrials.gov registration ID (e.g. NCT04280705), if one was found. */
+  nct?: string;
+  /** ISBN (dashes stripped), if one was found — signals a book citation. */
+  isbn?: string;
   /** A best-effort title pulled from the surrounding text, if present. */
   claimedTitle?: string;
   /** Author surnames mentioned near the citation, if any. */
@@ -31,9 +35,10 @@ export interface ExtractedCitation {
 
 /** The bibliographic record a registry returned for a lookup. */
 export interface ResolvedRecord {
-  source: 'crossref' | 'pubmed' | 'openalex';
+  source: 'crossref' | 'pubmed' | 'openalex' | 'clinicaltrials';
   doi?: string;
   pmid?: string;
+  nct?: string;
   title?: string;
   authors?: string[];
   year?: number;

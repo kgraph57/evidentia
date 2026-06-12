@@ -11,7 +11,15 @@ const DOI_RE = /\b10\.\d{4,9}\/[-._;()/:a-z0-9A-Z]+/g;
 const PMID_RE = /\bPMID:?\s*(\d{1,8})(?!\d)/gi;
 const PMID_URL_RE = /pubmed\.ncbi\.nlm\.nih\.gov\/(\d{1,8})(?!\d)/gi;
 const ARXIV_RE = /\barXiv:\s*(\d{4}\.\d{4,5})(v\d+)?\b/gi;
+// ClinicalTrials.gov registration IDs: "NCT" followed by 8 digits.
+const NCT_RE = /\bNCT(\d{8})\b/gi;
+// ISBN-10 or ISBN-13, with optional dashes/spaces.
+const ISBN_RE = /\bISBN(?:-1[03])?:?\s*((?:97[89][\d\s-]{10,16}|[\dxX][\d\sxX-]{8,15}))\b/gi;
 const YEAR_RE = /\b(19|20)\d{2}\b/;
+
+function cleanIsbn(raw: string): string {
+  return raw.replace(/[\s-]/g, '').toUpperCase();
+}
 
 function cleanDoi(doi: string): string {
   return doi
@@ -75,28 +83,40 @@ function guessYear(span: string): number | undefined {
   return m ? Number(m[0]) : undefined;
 }
 
+interface Span {
+  text: string;
+  /** True when the span came from an explicit "References" section, where every
+   *  line is a citation even without a machine-checkable identifier. */
+  fromRefList: boolean;
+}
+
+const HAS_ID = /10\.\d{4,9}\/|PMID|pubmed|arXiv|\bNCT\d{8}\b|\bISBN/i;
+
 /**
- * Split text into citation-bearing spans. We treat numbered/bulleted reference
- * lines and DOI/PMID-bearing sentences as candidate spans, so the metadata we
- * attach (title/author/year) comes from the right neighbourhood.
+ * Split text into citation-bearing spans. Inside an explicit references section
+ * every line is a citation (so an unindexed guideline or book is surfaced, not
+ * silently skipped); elsewhere only numbered lines and identifier-bearing
+ * sentences qualify.
  */
-function spans(text: string): string[] {
-  // If there's a references section, prefer its lines.
-  const refSplit = text.split(/\n\s*(?:references|bibliography|引用文献|参考文献)\s*:?\s*\n/i);
-  const body = refSplit.length > 1 ? refSplit.slice(1).join('\n') : text;
+function spans(text: string): Span[] {
+  const refSplit = text.split(/(?:^|\n)\s*(?:references|bibliography|引用文献|参考文献)\s*:?\s*\n/i);
+  const hasRefSection = refSplit.length > 1;
+  const body = hasRefSection ? refSplit.slice(1).join('\n') : text;
   const lines = body
     .split(/\n+/)
     .map((l) => l.trim())
     .filter(Boolean);
-  // Numbered reference lines, or any line/sentence containing an identifier.
-  const out: string[] = [];
+
+  const out: Span[] = [];
   for (const line of lines) {
-    if (/^\[?\d+[.)\]]/.test(line) || /10\.\d{4,9}\//.test(line) || /PMID|pubmed/i.test(line)) {
-      out.push(line);
+    if (hasRefSection) {
+      // Every non-trivial line in a references section is a citation.
+      if (line.length >= 8) out.push({ text: line, fromRefList: true });
+    } else if (/^\[?\d+[.)\]]/.test(line) || HAS_ID.test(line)) {
+      out.push({ text: line, fromRefList: false });
     } else {
-      // Break long prose into sentences and keep those with identifiers.
       for (const sent of line.split(/(?<=[.!?])\s+/)) {
-        if (/10\.\d{4,9}\//.test(sent) || /PMID|pubmed|arXiv/i.test(sent)) out.push(sent);
+        if (HAS_ID.test(sent)) out.push({ text: sent, fromRefList: false });
       }
     }
   }
@@ -116,30 +136,49 @@ export function extractCitations(text: string): ExtractedCitation[] {
 
   const candidateSpans = spans(text);
   // Fall back to the whole text if span detection found nothing.
-  const searchSpans = candidateSpans.length ? candidateSpans : [text];
+  const searchSpans: Span[] = candidateSpans.length
+    ? candidateSpans
+    : [{ text, fromRefList: false }];
 
   for (const span of searchSpans) {
-    const ids: Array<{ kind: 'doi' | 'pmid' | 'arxiv'; value: string }> = [];
+    const s = span.text;
+    const ids: Array<{ kind: 'doi' | 'pmid' | 'arxiv' | 'nct' | 'isbn'; value: string }> = [];
 
-    for (const m of span.matchAll(DOI_RE)) ids.push({ kind: 'doi', value: cleanDoi(m[0]) });
-    for (const m of span.matchAll(PMID_RE)) if (m[1]) ids.push({ kind: 'pmid', value: m[1] });
-    for (const m of span.matchAll(PMID_URL_RE)) if (m[1]) ids.push({ kind: 'pmid', value: m[1] });
-    for (const m of span.matchAll(ARXIV_RE)) if (m[1]) ids.push({ kind: 'arxiv', value: m[1] });
+    for (const m of s.matchAll(DOI_RE)) ids.push({ kind: 'doi', value: cleanDoi(m[0]) });
+    for (const m of s.matchAll(PMID_RE)) if (m[1]) ids.push({ kind: 'pmid', value: m[1] });
+    for (const m of s.matchAll(PMID_URL_RE)) if (m[1]) ids.push({ kind: 'pmid', value: m[1] });
+    for (const m of s.matchAll(ARXIV_RE)) if (m[1]) ids.push({ kind: 'arxiv', value: m[1] });
+    for (const m of s.matchAll(NCT_RE)) ids.push({ kind: 'nct', value: `NCT${m[1]}` });
+    for (const m of s.matchAll(ISBN_RE)) if (m[1]) ids.push({ kind: 'isbn', value: cleanIsbn(m[1]) });
 
     // De-duplicate identifiers within this span.
     const uniqueIds = ids.filter(
       (id, i) => ids.findIndex((o) => o.kind === id.kind && o.value === id.value) === i,
     );
-    if (uniqueIds.length === 0) continue;
+    const raw = s.length > 400 ? s.slice(0, 400) + '…' : s;
+
+    if (uniqueIds.length === 0) {
+      // A reference-list line with no machine-checkable identifier (e.g. a
+      // guideline, book, or website). Surface it as a title-only citation so it
+      // is flagged for review rather than silently skipped.
+      if (!span.fromRefList) continue;
+      const title = guessTitle(s) ?? stripLeadingNumber(s);
+      const key = `title:${title.toLowerCase()}`;
+      if (!title || title.length < 8 || seen.has(key)) continue;
+      seen.add(key);
+      const year = guessYear(s);
+      out.push({ index: ++index, raw, claimedTitle: title, ...(year ? { claimedYear: year } : {}) });
+      continue;
+    }
 
     // Only attach a guessed title/author/year when the span contains exactly one
     // identifier. With several identifiers in one span (common in inline AI prose),
     // a single guessed title would bleed onto the wrong paper and fabricate a
     // mismatch, so we fall back to safe identifier-only verification.
     const attachMeta = uniqueIds.length === 1;
-    const claimedTitle = attachMeta ? guessTitle(span) : undefined;
-    const claimedAuthors = attachMeta ? guessAuthors(span) : undefined;
-    const claimedYear = attachMeta ? guessYear(span) : undefined;
+    const claimedTitle = attachMeta ? guessTitle(s) : undefined;
+    const claimedAuthors = attachMeta ? guessAuthors(s) : undefined;
+    const claimedYear = attachMeta ? guessYear(s) : undefined;
 
     for (const id of uniqueIds) {
       const key = `${id.kind}:${id.value}`;
@@ -147,10 +186,12 @@ export function extractCitations(text: string): ExtractedCitation[] {
       seen.add(key);
       out.push({
         index: ++index,
-        raw: span.length > 400 ? span.slice(0, 400) + '…' : span,
+        raw,
         ...(id.kind === 'doi' ? { doi: id.value } : {}),
         ...(id.kind === 'pmid' ? { pmid: id.value } : {}),
         ...(id.kind === 'arxiv' ? { arxiv: id.value } : {}),
+        ...(id.kind === 'nct' ? { nct: id.value } : {}),
+        ...(id.kind === 'isbn' ? { isbn: id.value } : {}),
         ...(claimedTitle ? { claimedTitle } : {}),
         ...(claimedAuthors ? { claimedAuthors } : {}),
         ...(claimedYear ? { claimedYear } : {}),
@@ -159,4 +200,9 @@ export function extractCitations(text: string): ExtractedCitation[] {
   }
 
   return out;
+}
+
+/** Strip a leading reference number ("1.", "[3]") from a line. */
+function stripLeadingNumber(line: string): string {
+  return line.replace(/^\s*\[?\d+[.)\]]\s*/, '').trim();
 }

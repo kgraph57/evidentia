@@ -133,6 +133,46 @@ test('a 429 rate-limit is also surfaced as Tier 2, not a crash or a fake verdict
   assert.equal(r.tier.tier, 2);
 });
 
+test('NCT — a registered trial verifies (Tier 1)', async () => {
+  const opts: VerifyOptions = {
+    fetchImpl: fakeFetch({
+      'clinicaltrials.gov/api/v2/studies/NCT04280705': {
+        protocolSection: {
+          identificationModule: { nctId: 'NCT04280705', briefTitle: 'ACTT-1' },
+          statusModule: { startDateStruct: { date: '2020-02-21' } },
+        },
+      },
+    }),
+  };
+  const r = await verifyCitation(baseCitation({ nct: 'NCT04280705' }), opts);
+  assert.equal(r.tier.tier, 1);
+});
+
+test('NCT — an unregistered trial id is a hallucination (Tier 4)', async () => {
+  const opts: VerifyOptions = { fetchImpl: fakeFetch({}) }; // everything 404s
+  const r = await verifyCitation(baseCitation({ nct: 'NCT09999999' }), opts);
+  assert.equal(r.tier.tier, 4);
+  assert.match(r.tier.reason, /ClinicalTrials\.gov/);
+});
+
+test('ISBN — a book citation is Tier 2, never a hallucination', async () => {
+  const r = await verifyCitation(baseCitation({ isbn: '9780323529501' }), { offline: false, fetchImpl: fakeFetch({}) });
+  assert.equal(r.tier.tier, 2);
+  assert.match(r.tier.reason, /[Bb]ook/);
+});
+
+test('CRITICAL — an unindexed guideline (title-only, not found) is Tier 2, NOT a hallucination', async () => {
+  // Title search finds nothing; the old behavior wrongly called this a fabrication.
+  const opts: VerifyOptions = { fetchImpl: fakeFetch({ 'openalex.org/works?': { results: [] } }) };
+  const r = await verifyCitation(
+    baseCitation({ claimedTitle: 'WHO recommendations on antenatal care for a positive pregnancy experience' }),
+    opts,
+  );
+  assert.notEqual(r.tier.tier, 4);
+  assert.equal(r.tier.tier, 2);
+  assert.match(r.tier.reason, /grey literature|guideline|not found in the indexed/i);
+});
+
 test('a fabricated DOI on a generic title is softened to Tier 2, not falsely "verified"', async () => {
   // DOI 404s; title search returns a boilerplate-similar paper below the 0.8 floor.
   const opts: VerifyOptions = {

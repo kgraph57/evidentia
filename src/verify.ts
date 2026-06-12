@@ -11,6 +11,7 @@ import {
   lookupCrossrefByDoi,
   lookupPubmedByPmid,
   lookupOpenAlexByDoi,
+  lookupClinicalTrial,
   searchOpenAlexByTitle,
   RegistryUnavailableError,
 } from './registries.ts';
@@ -165,13 +166,44 @@ async function classifyOnline(c: ExtractedCitation, opts: VerifyOptions): Promis
         discrepancies: [],
       };
     }
+  } else if (c.nct) {
+    // ClinicalTrials.gov registration — must resolve, like a DOI/PMID. The text
+    // around an NCT is usually a description ("the ACTT-1 trial"), not the
+    // official study title, so existence is the verification — we do not run a
+    // title-mismatch check that would false-flag the description.
+    resolved = await lookupClinicalTrial(c.nct, opts);
+    if (!resolved) {
+      return {
+        ...c,
+        tier: tier(4, 'Hallucination', `${c.nct} is not a registered study on ClinicalTrials.gov.`),
+        discrepancies: [],
+      };
+    }
+    return {
+      ...c,
+      resolved,
+      tier: tier(1, 'Verified', `${c.nct} is a registered study on ClinicalTrials.gov ("${resolved.title}"). Context not checked.`),
+      discrepancies: [],
+    };
+  } else if (c.isbn) {
+    // Books are not indexed in journal/trial registries; absence is not evidence
+    // of fabrication, so never assert a hallucination for an ISBN.
+    return {
+      ...c,
+      tier: tier(2, 'Content review needed', `Book citation (ISBN ${c.isbn}) — not auto-verifiable against journal or trial registries; verify manually.`),
+      discrepancies: [],
+    };
   } else if (c.claimedTitle) {
     // Identifier-free citation: existence check by title only.
     resolved = await searchOpenAlexByTitle(c, opts);
     if (!resolved || resolved.matchScore < TITLE_MAYBE) {
+      // Absence from the indexed literature does NOT prove fabrication for a
+      // title-only citation — it may be a guideline, book, website, or other
+      // grey literature. Only a failing DOI/PMID/NCT (which must resolve)
+      // warrants a hallucination verdict.
       return {
         ...c,
-        tier: tier(4, 'Hallucination', 'No paper matching this title was found in OpenAlex.'),
+        tier: tier(2, 'Content review needed', 'Not found in the indexed literature. With no DOI/PMID to confirm, this may be a guideline, book, website, or other grey literature — verify manually.'),
         discrepancies: [],
       };
     }
