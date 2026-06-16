@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { verifyText } from '../src/index.ts';
 import { verifyCitation } from '../src/verify.ts';
 import type { ExtractedCitation, VerifyOptions } from '../src/types.ts';
 
@@ -83,6 +84,15 @@ test('Tier 3 — DOI resolves but the year is wrong', async () => {
   assert.ok(r.discrepancies.some((d) => d.field === 'year'));
 });
 
+test('does not infer an author mismatch from a journal abbreviation after a title', async () => {
+  const opts: VerifyOptions = {
+    fetchImpl: fakeFetch({ 'api.crossref.org/works/10.1000/real': crossrefOk('10.1000/real', REAL_TITLE) }),
+  };
+  const r = await verifyText(`${REAL_TITLE}. N Engl J Med. 2020. doi:10.1000/real`, opts);
+  assert.equal(r.citations[0]?.claimedAuthors, undefined);
+  assert.equal(r.citations[0]?.tier.tier, 1);
+});
+
 test('Tier 2 — offline mode never fabricates a verdict', async () => {
   const r = await verifyCitation(baseCitation({ doi: '10.1/real' }), { offline: true });
   assert.equal(r.tier.tier, 2);
@@ -159,6 +169,13 @@ test('ISBN — a book citation is Tier 2, never a hallucination', async () => {
   const r = await verifyCitation(baseCitation({ isbn: '9780323529501' }), { offline: false, fetchImpl: fakeFetch({}) });
   assert.equal(r.tier.tier, 2);
   assert.match(r.tier.reason, /[Bb]ook/);
+});
+
+test('arXiv — a preprint id is surfaced as manual review, not as missing metadata', async () => {
+  const r = await verifyCitation(baseCitation({ arxiv: '2501.01234' }), { offline: false, fetchImpl: fakeFetch({}) });
+  assert.equal(r.tier.tier, 2);
+  assert.match(r.tier.reason, /arXiv|preprint/i);
+  assert.doesNotMatch(r.tier.reason, /No DOI, PMID, or title/);
 });
 
 test('CRITICAL — an unindexed guideline (title-only, not found) is Tier 2, NOT a hallucination', async () => {

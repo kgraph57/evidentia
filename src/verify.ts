@@ -185,6 +185,15 @@ async function classifyOnline(c: ExtractedCitation, opts: VerifyOptions): Promis
       tier: tier(1, 'Verified', `${c.nct} is a registered study on ClinicalTrials.gov ("${resolved.title}"). Context not checked.`),
       discrepancies: [],
     };
+  } else if (c.arxiv) {
+    // arXiv support is intentionally conservative until the engine resolves
+    // arXiv records directly. A preprint identifier should be surfaced for
+    // review, never reported as missing metadata or fabricated.
+    return {
+      ...c,
+      tier: tier(2, 'Content review needed', `arXiv preprint (${c.arxiv}) — not auto-verifiable against the current journal/trial registries; verify manually.`),
+      discrepancies: [],
+    };
   } else if (c.isbn) {
     // Books are not indexed in journal/trial registries; absence is not evidence
     // of fabrication, so never assert a hallucination for an ISBN.

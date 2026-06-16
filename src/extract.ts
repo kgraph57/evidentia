@@ -27,6 +27,16 @@ function cleanDoi(doi: string): string {
     .toLowerCase();
 }
 
+function stripIdentifiers(span: string): string {
+  return span
+    .replace(DOI_RE, ' ')
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/PMID:?\s*\d+/gi, ' ')
+    .replace(/arXiv:\s*\S+/gi, ' ')
+    .replace(/\bNCT\d{8}\b/gi, ' ')
+    .replace(ISBN_RE, ' ');
+}
+
 /**
  * Pull a plausible title out of the citation span. A quoted run wins outright;
  * otherwise we strip identifiers and pick the longest period-delimited segment
@@ -39,11 +49,7 @@ function guessTitle(span: string): string | undefined {
   if (quoted?.[1]) return quoted[1].trim().replace(/[.;,]+$/, '');
 
   // Remove identifiers, URLs, and leading reference numbering.
-  const stripped = span
-    .replace(DOI_RE, ' ')
-    .replace(/https?:\/\/\S+/g, ' ')
-    .replace(/PMID:?\s*\d+/gi, ' ')
-    .replace(/arXiv:\s*\S+/gi, ' ')
+  const stripped = stripIdentifiers(span)
     .replace(/^\s*\[?\d+[.)\]]\s*/, '');
 
   let best: string | undefined;
@@ -68,9 +74,14 @@ function guessTitle(span: string): string | undefined {
   return best && best.length >= 12 ? best : undefined;
 }
 
-function guessAuthors(span: string): string[] | undefined {
+function guessAuthors(span: string, claimedTitle?: string): string[] | undefined {
+  let authorSpan = span;
+  if (claimedTitle) {
+    const titleAt = span.toLowerCase().indexOf(claimedTitle.toLowerCase());
+    if (titleAt >= 0) authorSpan = span.slice(0, titleAt);
+  }
   // "Smith J", "Smith JA", "Smith, J.", "Smith et al"
-  const matches = span.match(/\b([A-Z][a-z]+(?:-[A-Z][a-z]+)?)\s*,?\s*[A-Z]{1,3}\b/g);
+  const matches = authorSpan.match(/\b([A-Z][a-z]+(?:-[A-Z][a-z]+)?)\s*,?\s*[A-Z]{1,3}\b/g);
   if (!matches || matches.length === 0) return undefined;
   const names = matches
     .map((m) => m.replace(/\s*,?\s*[A-Z]{1,3}$/, '').trim())
@@ -79,7 +90,7 @@ function guessAuthors(span: string): string[] | undefined {
 }
 
 function guessYear(span: string): number | undefined {
-  const m = span.match(YEAR_RE);
+  const m = stripIdentifiers(span).match(YEAR_RE);
   return m ? Number(m[0]) : undefined;
 }
 
@@ -91,6 +102,7 @@ interface Span {
 }
 
 const HAS_ID = /10\.\d{4,9}\/|PMID|pubmed|arXiv|\bNCT\d{8}\b|\bISBN/i;
+const REF_SECTION_RE = /(?:^|\n)\s*(?:references|bibliography|引用文献|参考文献)\s*:?\s*\n/i;
 
 /**
  * Split text into citation-bearing spans. Inside an explicit references section
@@ -98,18 +110,15 @@ const HAS_ID = /10\.\d{4,9}\/|PMID|pubmed|arXiv|\bNCT\d{8}\b|\bISBN/i;
  * silently skipped); elsewhere only numbered lines and identifier-bearing
  * sentences qualify.
  */
-function spans(text: string): Span[] {
-  const refSplit = text.split(/(?:^|\n)\s*(?:references|bibliography|引用文献|参考文献)\s*:?\s*\n/i);
-  const hasRefSection = refSplit.length > 1;
-  const body = hasRefSection ? refSplit.slice(1).join('\n') : text;
-  const lines = body
+function spansFromText(text: string, fromRefList: boolean): Span[] {
+  const lines = text
     .split(/\n+/)
     .map((l) => l.trim())
     .filter(Boolean);
 
   const out: Span[] = [];
   for (const line of lines) {
-    if (hasRefSection) {
+    if (fromRefList) {
       // Every non-trivial line in a references section is a citation.
       if (line.length >= 8) out.push({ text: line, fromRefList: true });
     } else if (/^\[?\d+[.)\]]/.test(line) || HAS_ID.test(line)) {
@@ -121,6 +130,18 @@ function spans(text: string): Span[] {
     }
   }
   return out;
+}
+
+function spans(text: string): Span[] {
+  const refSplit = text.split(REF_SECTION_RE);
+  if (refSplit.length === 1) return spansFromText(text, false);
+
+  const beforeReferences = refSplit[0] ?? '';
+  const references = refSplit.slice(1).join('\n');
+  return [
+    ...spansFromText(beforeReferences, false),
+    ...spansFromText(references, true),
+  ];
 }
 
 /**
@@ -177,7 +198,7 @@ export function extractCitations(text: string): ExtractedCitation[] {
     // mismatch, so we fall back to safe identifier-only verification.
     const attachMeta = uniqueIds.length === 1;
     const claimedTitle = attachMeta ? guessTitle(s) : undefined;
-    const claimedAuthors = attachMeta ? guessAuthors(s) : undefined;
+    const claimedAuthors = attachMeta ? guessAuthors(s, claimedTitle) : undefined;
     const claimedYear = attachMeta ? guessYear(s) : undefined;
 
     for (const id of uniqueIds) {
