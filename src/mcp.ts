@@ -52,6 +52,9 @@ const TOOL = {
 };
 
 async function handleToolCall(params: Record<string, unknown> | undefined): Promise<{ content: object[] }> {
+  if (params?.name !== TOOL.name) {
+    throw new Error(`Unknown tool: ${String(params?.name ?? '(missing)')}`);
+  }
   const args = (params?.arguments ?? {}) as { text?: string; mailto?: string; format?: string };
   if (typeof args.text !== 'string' || !args.text.trim()) {
     throw new Error('Missing required argument: text');

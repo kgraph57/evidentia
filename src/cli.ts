@@ -42,6 +42,7 @@ interface Args {
   offline: boolean;
   help: boolean;
   version: boolean;
+  errors: string[];
 }
 
 function parseArgs(argv: string[]): Args {
@@ -52,8 +53,17 @@ function parseArgs(argv: string[]): Args {
     offline: false,
     help: false,
     version: false,
+    errors: [],
   };
   const positional: string[] = [];
+  const readOptionValue = (name: string, i: number): { value?: string; nextIndex: number } => {
+    const value = argv[i + 1];
+    if (!value || (value.startsWith('-') && value !== '-')) {
+      args.errors.push(`Missing value for ${name}.`);
+      return { nextIndex: i };
+    }
+    return { value, nextIndex: i + 1 };
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     switch (a) {
@@ -66,13 +76,31 @@ function parseArgs(argv: string[]): Args {
         args.version = true;
         break;
       case '--format':
-        args.format = (argv[++i] as Args['format']) ?? 'text';
+        {
+          const next = readOptionValue('--format', i);
+          i = next.nextIndex;
+          const value = next.value;
+          if (!value) break;
+          if (value !== 'md' && value !== 'text' && value !== 'json') {
+            args.errors.push(`Invalid --format value "${value ?? ''}". Expected md, text, or json.`);
+          } else {
+            args.format = value;
+          }
+        }
         break;
       case '--out':
-        args.out = argv[++i];
+        {
+          const next = readOptionValue('--out', i);
+          i = next.nextIndex;
+          args.out = next.value;
+        }
         break;
       case '--mailto':
-        args.mailto = argv[++i];
+        {
+          const next = readOptionValue('--mailto', i);
+          i = next.nextIndex;
+          args.mailto = next.value;
+        }
         break;
       case '--fail-on-fabrication':
         args.failOnFabrication = true;
@@ -81,7 +109,11 @@ function parseArgs(argv: string[]): Args {
         args.offline = true;
         break;
       default:
-        positional.push(a);
+        if (a.startsWith('-') && a !== '-') {
+          args.errors.push(`Unknown option: ${a}`);
+        } else {
+          positional.push(a);
+        }
     }
   }
   args.command = positional[0];
@@ -174,7 +206,16 @@ async function main(): Promise<void> {
     process.stdout.write(`evidentia ${VERSION}\n`);
     return;
   }
-  if (args.help || !args.command) {
+  if (args.help) {
+    process.stdout.write(HELP);
+    return;
+  }
+  if (args.errors.length > 0) {
+    process.stderr.write(args.errors.map((e) => `Error: ${e}`).join('\n') + '\n\n' + HELP);
+    process.exitCode = 2;
+    return;
+  }
+  if (!args.command) {
     process.stdout.write(HELP);
     return;
   }

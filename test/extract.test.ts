@@ -55,6 +55,11 @@ test('extracts a year', () => {
   assert.equal(c[0]?.claimedYear, 2019);
 });
 
+test('does not infer the cited year from a year-like DOI suffix', () => {
+  const c = extractCitations('Study title. doi:10.1000/2015.real');
+  assert.equal(c[0]?.claimedYear, undefined);
+});
+
 test('returns nothing when there are no identifiers', () => {
   const c = extractCitations('A health article with no citations at all.');
   assert.equal(c.length, 0);
@@ -67,6 +72,15 @@ test('handles a multi-reference list', () => {
 3. C. arXiv:2401.00001`;
   const c = extractCitations(text);
   assert.equal(c.length, 3);
+});
+
+test('keeps inline citations that appear before an explicit references section', () => {
+  const text = `The main text cites doi:10.1000/body.
+
+References
+1. Reference entry. doi:10.1000/ref`;
+  const c = extractCitations(text);
+  assert.deepEqual(c.map((x) => x.doi), ['10.1000/body', '10.1000/ref']);
 });
 
 test('extracts a short (5-digit) PMID', () => {
