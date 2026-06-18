@@ -1,7 +1,7 @@
 {
   "name": "evidentia",
-  "version": "1.0.0",
-  "description": "Catch AI-fabricated medical citations before you publish. Verifies DOIs/PMIDs against CrossRef, PubMed, and OpenAlex; grades the result in a 4-tier classification. CLI + MCP server.",
+  "version": "1.1.0",
+  "description": "Catch AI-fabricated medical citations before you publish. Verifies DOIs, PMIDs, arXiv IDs, NCT records, and metadata against public registries; grades the result in a 4-tier classification. CLI + MCP server.",
   "keywords": [
     "medical",
     "fact-check",
@@ -9,6 +9,8 @@
     "hallucination",
     "doi",
     "pubmed",
+    "arxiv",
+    "clinicaltrials",
     "crossref",
     "openalex",
     "evidence-based-medicine",

@@ -17,3 +17,6 @@
 {"id": "fabricated-pmid-crystals", "text": "Imaginary trial of crystals in pediatrics. PMID: 88888812", "expected_tier": 4, "note": "Non-existent PubMed record."}
 {"id": "real-nct-actt1", "text": "The ACTT-1 adaptive treatment trial of remdesivir. NCT04280705", "expected_tier": 1, "note": "Real ClinicalTrials.gov registration."}
 {"id": "fabricated-nct", "text": "An unregistered trial of homeopathy in sepsis. NCT09999999", "expected_tier": 4, "note": "NCT id not registered on ClinicalTrials.gov."}
+{"id": "real-arxiv-attention", "text": "Vaswani A, et al. Attention Is All You Need. arXiv:1706.03762", "expected_tier": 1, "note": "Real arXiv preprint identifier."}
+{"id": "fabricated-arxiv", "text": "Imaginary preprint on magnet therapy in sepsis. arXiv:9999.99999", "expected_tier": 4, "note": "arXiv id does not resolve."}
+{"id": "manual-isbn-nelson", "text": "Nelson Textbook of Pediatrics. ISBN: 978-0-323-52950-1", "expected_tier": 2, "note": "Book citations should be surfaced for manual review, not called fabricated."}

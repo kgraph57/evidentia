@@ -10,6 +10,10 @@ export type {
   VerifyOptions,
   Tier,
   TierInfo,
+  LookupVerified,
+  ResolverOutcome,
+  ResolverStatus,
+  ResolverQuery,
 } from './types.ts';
 export { extractCitations } from './extract.ts';
 export { verifyCitation } from './verify.ts';

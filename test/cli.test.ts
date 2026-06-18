@@ -61,3 +61,10 @@ test('CLI rejects --out without a file path', async () => {
   assert.match(result.stderr, /Missing value for --out/);
   assert.equal(result.stdout, '');
 });
+
+test('CLI accepts --cache with an explicit cache file path', async () => {
+  const result = await runCli(['check', '-', '--offline', '--cache', '.tmp-test/evidentia-cache.json'], 'doi:10.1000/x');
+  assert.equal(result.code, 0);
+  assert.match(result.stdout, /Offline mode/);
+  assert.equal(result.stderr, '');
+});

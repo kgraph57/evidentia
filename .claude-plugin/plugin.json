@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "evidentia",
   "displayName": "Evidentia — Medical Evidence & Citation Audit",
-  "version": "1.0.0",
-  "description": "Pre-publication evidence audit for medical and health content. Catches AI-fabricated citations and grades any health claim with a 15-criteria, physician-built rubric (A–F report).",
+  "version": "1.1.0",
+  "description": "Pre-publication evidence audit for medical and health content. Catches AI-fabricated DOIs, PMIDs, arXiv IDs, and trial registrations, then grades any health claim with a 15-criteria, physician-built rubric (A–F report).",
   "author": {
     "name": "Ken Okamoto, MD"
   },
@@ -17,6 +17,8 @@
     "hallucination-detection",
     "evidence-based-medicine",
     "pubmed",
+    "arxiv",
+    "clinicaltrials",
     "critical-appraisal"
   ]
 }

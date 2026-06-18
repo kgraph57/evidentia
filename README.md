@@ -4,7 +4,7 @@
 
 ### Catch AI-fabricated medical citations before you publish.
 
-The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion **Claude Code skill** adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
+The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion agent skill adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
 
 <img src="assets/demo.svg" alt="Evidentia flagging 3 of 4 citations in an AI-generated medical answer as fabricated or mismatched" width="760">
 
@@ -40,6 +40,13 @@ npx evidentia check your-article.md
 ```
 
 Then just say: *"Fact-check this article"* / *「この記事をファクトチェックして」*.
+
+**As a Codex Desktop plugin**:
+
+```text
+Marketplace source: https://github.com/kgraph57/evidentia.git
+Plugin: evidentia
+```
 
 ## What it catches
 
@@ -89,7 +96,7 @@ Give any agent the ability to verify citations:
 claude mcp add evidentia -- npx -y evidentia-mcp
 ```
 
-The server exposes one tool, `verify_citations(text)`, returning the tiered report as Markdown or JSON.
+The server exposes one tool, `verify_citations(text)`, returning the tiered report as Markdown or JSON. JSON responses include both the public 4-tier verdict and a machine-readable `lookupVerified` / `resolverOutcomes` trace for agents and CI.
 
 ## Use it in CI
 
@@ -149,6 +156,7 @@ evidentia check <file|url|->   Verify citations in a file, web page, or stdin
   --format <md|text|json>      Output format (default: text)
   --out <file>                 Write the report to a file
   --mailto <email>             Contact email for the CrossRef/OpenAlex polite pool
+  --cache <file>               Reuse registry HTTP responses from a local JSON cache
   --fail-on-fabrication        Exit 1 if any citation is mismatch/hallucination (CI)
   --offline                    Extraction only, no network
 ```
@@ -173,11 +181,14 @@ For each citation, Evidentia extracts every identifier (DOI, PMID, arXiv, **NCT 
 
 1. **Resolves the DOI** against CrossRef, falling back to OpenAlex.
 2. **Resolves the PMID** against PubMed E-utilities.
-3. **Resolves NCT trial IDs** against ClinicalTrials.gov.
-4. If the identifier doesn't resolve, **searches by title** in OpenAlex — this is how it distinguishes *"real paper, wrong DOI"* (Tier 3) from *"this paper does not exist"* (Tier 4).
-5. **Compares** the cited title/authors/year against the registry record to catch a DOI that silently points to a different paper.
+3. **Resolves arXiv IDs** against the arXiv API.
+4. **Resolves NCT trial IDs** against ClinicalTrials.gov.
+5. If the identifier doesn't resolve, **searches by title** in OpenAlex — this is how it distinguishes *"real paper, wrong DOI"* (Tier 3) from *"this paper does not exist"* (Tier 4).
+6. **Compares** the cited title/authors/year against the registry record to catch an identifier that silently points to a different paper.
 
-It is deliberately careful about **what it does *not* flag**: a book (ISBN), a clinical guideline, or any source that isn't indexed in these registries is marked *"verify manually"* (Tier 2), never *"hallucination"* — only a failing DOI/PMID/NCT (which is *supposed* to resolve) earns a fabrication verdict. Identifier-less entries in a reference list are surfaced for review rather than silently skipped.
+Each JSON citation also includes `lookupVerified` (`true`, `false`, or `unresolvable`) and `resolverOutcomes` (`matched`, `unmatched`, `unreachable`, or `skipped`, with whether the lookup was keyed by an identifier or a title). This keeps agent workflows auditable without changing the human-facing 4-tier verdict.
+
+It is deliberately careful about **what it does *not* flag**: a book (ISBN), a clinical guideline, or any source that isn't indexed in these registries is marked *"verify manually"* (Tier 2), never *"hallucination"* — only a failing DOI/PMID/arXiv/NCT identifier (which is *supposed* to resolve) earns a fabrication verdict. Identifier-less entries in a reference list are surfaced for review rather than silently skipped.
 
 All registries are free and keyless. Pass `--mailto` to join the faster "polite pool."
 
@@ -196,7 +207,8 @@ All registries are free and keyless. Pass `--mailto` to join the faster "polite 
 
 ## Roadmap
 
-- [x] Batch input — `evidentia check a.md b.md …` with an aggregate report ([benchmark: 17/17](benchmark/))
+- [x] Batch input — `evidentia check a.md b.md …` with an aggregate report ([benchmark: 22 cases](benchmark/))
+- [x] arXiv ID verification, resolver traces, and optional local lookup cache
 - [ ] `evidentia-bench` — grow to 100+ cases and publish per-model fabrication rates
 - [ ] CrossRef/OpenAlex abstract retrieval to assist Tier-2 context checks
 - [ ] More media presets in the skill

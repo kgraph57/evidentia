@@ -9,6 +9,8 @@ function reportOf(tiers: VerifiedCitation['tier']['tier'][]): VerifyReport {
   const citations = tiers.map((t, i) => ({
     index: i + 1,
     raw: 'r',
+    lookupVerified: t === 1 ? 'true' : t === 2 ? 'unresolvable' : 'false',
+    resolverOutcomes: { fixture: { status: t === 1 ? 'matched' : t === 2 ? 'skipped' : 'unmatched', queriedBy: t === 2 ? null : 'id' } },
     tier: { tier: t, label: labelOf(t) as VerifiedCitation['tier']['label'], reason: 'x' },
     discrepancies: [],
   })) as VerifiedCitation[];

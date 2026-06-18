@@ -1,0 +1,44 @@
+{
+  "name": "evidentia",
+  "version": "1.1.0",
+  "description": "Medical and scientific citation verification for Codex. Catches fabricated DOIs, invalid PMIDs, arXiv IDs, NCT records, and bibliographic mismatches.",
+  "author": {
+    "name": "Ken Okamoto, MD",
+    "url": "https://github.com/kgraph57"
+  },
+  "homepage": "https://github.com/kgraph57/evidentia",
+  "repository": "https://github.com/kgraph57/evidentia",
+  "license": "MIT",
+  "keywords": [
+    "medical",
+    "fact-check",
+    "citation-verification",
+    "hallucination-detection",
+    "evidence-based-medicine",
+    "pubmed",
+    "arxiv",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Evidentia",
+    "shortDescription": "Catch fabricated medical and scientific citations.",
+    "longDescription": "Evidentia verifies citations against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov, flags fabricated or mismatched references, and provides a medical fact-checking skill for full evidence appraisal.",
+    "developerName": "Ken Okamoto, MD",
+    "category": "Research",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/kgraph57/evidentia",
+    "privacyPolicyURL": "https://github.com/kgraph57/evidentia/blob/main/SECURITY.md",
+    "termsOfServiceURL": "https://github.com/kgraph57/evidentia/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Fact-check this medical article.",
+      "Verify the citations in this manuscript.",
+      "Audit this health post for evidence quality."
+    ],
+    "brandColor": "#D97757"
+  }
+}

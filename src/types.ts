@@ -35,10 +35,11 @@ export interface ExtractedCitation {
 
 /** The bibliographic record a registry returned for a lookup. */
 export interface ResolvedRecord {
-  source: 'crossref' | 'pubmed' | 'openalex' | 'clinicaltrials';
+  source: 'crossref' | 'pubmed' | 'openalex' | 'clinicaltrials' | 'arxiv';
   doi?: string;
   pmid?: string;
   nct?: string;
+  arxiv?: string;
   title?: string;
   authors?: string[];
   year?: number;
@@ -50,6 +51,18 @@ export interface ResolvedRecord {
 
 export type Tier = 1 | 2 | 3 | 4;
 
+export type LookupVerified = 'true' | 'false' | 'unresolvable';
+
+export type ResolverStatus = 'matched' | 'unmatched' | 'unreachable' | 'skipped';
+
+export type ResolverQuery = 'id' | 'title' | null;
+
+export interface ResolverOutcome {
+  status: ResolverStatus;
+  queriedBy: ResolverQuery;
+  responseSummary?: string;
+}
+
 export interface TierInfo {
   tier: Tier;
   label: 'Verified' | 'Content review needed' | 'Bibliographic mismatch' | 'Hallucination';
@@ -60,6 +73,10 @@ export interface TierInfo {
 /** The full result for one citation after verification + classification. */
 export interface VerifiedCitation extends ExtractedCitation {
   resolved?: ResolvedRecord;
+  /** ARS-style 3-state existence signal used by agents and CI. */
+  lookupVerified: LookupVerified;
+  /** Per-registry trace of what was attempted and how it resolved. */
+  resolverOutcomes: Record<string, ResolverOutcome>;
   tier: TierInfo;
   /** Field-level disagreements between claimed and resolved metadata. */
   discrepancies: Discrepancy[];
@@ -82,6 +99,10 @@ export interface VerifyOptions {
   retries?: number;
   /** Disable network calls (used in offline tests). */
   offline?: boolean;
+  /** Optional persistent HTTP cache path for registry lookups. */
+  cachePath?: string;
+  /** Cache TTL in ms. Default 90 days. */
+  cacheTtlMs?: number;
   /** Injectable fetch for testing. Defaults to global fetch. */
   fetchImpl?: typeof fetch;
 }

@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { verifyText } from '../src/index.ts';
 import { verifyCitation } from '../src/verify.ts';
 import type { ExtractedCitation, VerifyOptions } from '../src/types.ts';
@@ -16,6 +19,7 @@ function fakeFetch(routes: Record<string, unknown>): typeof fetch {
     for (const [needle, body] of Object.entries(routes)) {
       if (u.includes(needle)) {
         if (body === null) return new Response(null, { status: 404 });
+        if (typeof body === 'string') return new Response(body, { status: 200 });
         return new Response(JSON.stringify(body), { status: 200 });
       }
     }
@@ -29,6 +33,19 @@ function crossrefOk(doi: string, title: string) {
   return { message: { DOI: doi, title: [title], author: [{ family: 'Polack', given: 'FP' }], 'container-title': ['N Engl J Med'], issued: { 'date-parts': [[2020]] }, URL: `https://doi.org/${doi}` } };
 }
 
+function arxivOk(id: string, title: string) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+  <feed xmlns="http://www.w3.org/2005/Atom">
+    <entry>
+      <id>http://arxiv.org/abs/${id}v1</id>
+      <published>2017-06-12T17:57:34Z</published>
+      <title>${title}</title>
+      <author><name>Ashish Vaswani</name></author>
+      <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.5555/arxiv.${id}</arxiv:doi>
+    </entry>
+  </feed>`;
+}
+
 function baseCitation(over: Partial<ExtractedCitation>): ExtractedCitation {
   return { index: 1, raw: 'raw', ...over };
 }
@@ -40,6 +57,9 @@ test('Tier 1 — DOI resolves and title matches', async () => {
   const r = await verifyCitation(baseCitation({ doi: '10.1/real', claimedTitle: REAL_TITLE }), opts);
   assert.equal(r.tier.tier, 1);
   assert.equal(r.tier.label, 'Verified');
+  assert.equal(r.lookupVerified, 'true');
+  assert.equal(r.resolverOutcomes.crossref?.status, 'matched');
+  assert.equal(r.resolverOutcomes.crossref?.queriedBy, 'id');
 });
 
 test('Tier 4 — DOI does not resolve and no paper matches', async () => {
@@ -49,6 +69,9 @@ test('Tier 4 — DOI does not resolve and no paper matches', async () => {
   const r = await verifyCitation(baseCitation({ doi: '10.9999/fake', claimedTitle: 'A fabricated study of nothing' }), opts);
   assert.equal(r.tier.tier, 4);
   assert.equal(r.tier.label, 'Hallucination');
+  assert.equal(r.lookupVerified, 'false');
+  assert.equal(r.resolverOutcomes.crossref?.status, 'unmatched');
+  assert.equal(r.resolverOutcomes.openalex?.status, 'unmatched');
 });
 
 test('Tier 4 — DOI resolves to a different paper than cited', async () => {
@@ -73,6 +96,9 @@ test('Tier 3 — real paper cited with an invented DOI', async () => {
   const r = await verifyCitation(baseCitation({ doi: '10.9999/fake', claimedTitle: REAL_TITLE }), opts);
   assert.equal(r.tier.tier, 3);
   assert.equal(r.tier.label, 'Bibliographic mismatch');
+  assert.equal(r.lookupVerified, 'true');
+  assert.equal(r.resolverOutcomes.openalexTitle?.status, 'matched');
+  assert.equal(r.resolverOutcomes.openalexTitle?.queriedBy, 'title');
 });
 
 test('Tier 3 — DOI resolves but the year is wrong', async () => {
@@ -97,6 +123,8 @@ test('Tier 2 — offline mode never fabricates a verdict', async () => {
   const r = await verifyCitation(baseCitation({ doi: '10.1/real' }), { offline: true });
   assert.equal(r.tier.tier, 2);
   assert.equal(r.tier.label, 'Content review needed');
+  assert.equal(r.lookupVerified, 'unresolvable');
+  assert.equal(r.resolverOutcomes.crossref?.status, 'skipped');
 });
 
 test('PMID path — invalid PMID with no title is a hallucination', async () => {
@@ -171,11 +199,34 @@ test('ISBN — a book citation is Tier 2, never a hallucination', async () => {
   assert.match(r.tier.reason, /[Bb]ook/);
 });
 
-test('arXiv — a preprint id is surfaced as manual review, not as missing metadata', async () => {
-  const r = await verifyCitation(baseCitation({ arxiv: '2501.01234' }), { offline: false, fetchImpl: fakeFetch({}) });
-  assert.equal(r.tier.tier, 2);
-  assert.match(r.tier.reason, /arXiv|preprint/i);
-  assert.doesNotMatch(r.tier.reason, /No DOI, PMID, or title/);
+test('arXiv — a resolvable preprint id verifies deterministically', async () => {
+  const opts: VerifyOptions = {
+    fetchImpl: fakeFetch({
+      'export.arxiv.org/api/query?id_list=1706.03762': arxivOk('1706.03762', 'Attention Is All You Need'),
+    }),
+  };
+  const r = await verifyCitation(
+    baseCitation({ arxiv: '1706.03762', claimedTitle: 'Attention Is All You Need' }),
+    opts,
+  );
+  assert.equal(r.tier.tier, 1);
+  assert.equal(r.resolved?.source, 'arxiv');
+  assert.equal(r.lookupVerified, 'true');
+  assert.equal(r.resolverOutcomes.arxiv?.status, 'matched');
+  assert.equal(r.resolverOutcomes.arxiv?.queriedBy, 'id');
+});
+
+test('arXiv — an unresolvable preprint id is a hallucination', async () => {
+  const opts: VerifyOptions = {
+    fetchImpl: fakeFetch({
+      'export.arxiv.org/api/query?id_list=9999.99999': '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+    }),
+  };
+  const r = await verifyCitation(baseCitation({ arxiv: '9999.99999' }), opts);
+  assert.equal(r.tier.tier, 4);
+  assert.match(r.tier.reason, /arXiv/);
+  assert.equal(r.lookupVerified, 'false');
+  assert.equal(r.resolverOutcomes.arxiv?.status, 'unmatched');
 });
 
 test('CRITICAL — an unindexed guideline (title-only, not found) is Tier 2, NOT a hallucination', async () => {
@@ -187,6 +238,7 @@ test('CRITICAL — an unindexed guideline (title-only, not found) is Tier 2, NOT
   );
   assert.notEqual(r.tier.tier, 4);
   assert.equal(r.tier.tier, 2);
+  assert.equal(r.lookupVerified, 'unresolvable');
   assert.match(r.tier.reason, /grey literature|guideline|not found in the indexed/i);
 });
 
@@ -203,4 +255,27 @@ test('a fabricated DOI on a generic title is softened to Tier 2, not falsely "ve
   );
   assert.notEqual(r.tier.tier, 1);
   assert.ok(r.tier.tier === 2 || r.tier.tier === 4, `expected Tier 2 or 4, got ${r.tier.tier}`);
+});
+
+test('cachePath reuses a successful registry response across verifier calls', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'evidentia-cache-test-'));
+  const cachePath = join(tempDir, 'cache.json');
+  let calls = 0;
+  const fetchImpl = (async (url: string | URL) => {
+    calls++;
+    assert.match(String(url), /api\.crossref\.org/);
+    return new Response(JSON.stringify(crossrefOk('10.1/real', REAL_TITLE)), { status: 200 });
+  }) as unknown as typeof fetch;
+
+  try {
+    const opts: VerifyOptions = { fetchImpl, cachePath };
+    const first = await verifyCitation(baseCitation({ doi: '10.1/real', claimedTitle: REAL_TITLE }), opts);
+    const second = await verifyCitation(baseCitation({ doi: '10.1/real', claimedTitle: REAL_TITLE }), opts);
+
+    assert.equal(first.tier.tier, 1);
+    assert.equal(second.tier.tier, 1);
+    assert.equal(calls, 1);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
 });

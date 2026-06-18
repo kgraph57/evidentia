@@ -9,16 +9,21 @@ const report: VerifyReport = {
   counts: { Verified: 1, 'Content review needed': 0, 'Bibliographic mismatch': 1, Hallucination: 1 },
   fabricationRate: 2 / 3,
   citations: [
-    { index: 1, raw: 'r', doi: '10.1/ok', tier: { tier: 1, label: 'Verified', reason: 'matches' }, discrepancies: [] },
+    { index: 1, raw: 'r', doi: '10.1/ok', lookupVerified: 'true', resolverOutcomes: { crossref: { status: 'matched', queriedBy: 'id' } }, tier: { tier: 1, label: 'Verified', reason: 'matches' }, discrepancies: [] },
     {
       index: 2,
       raw: 'r',
       doi: '10.1/fake',
       claimedTitle: 'Real paper',
+      lookupVerified: 'true',
+      resolverOutcomes: {
+        crossref: { status: 'unmatched', queriedBy: 'id' },
+        openalexTitle: { status: 'matched', queriedBy: 'title' },
+      },
       tier: { tier: 3, label: 'Bibliographic mismatch', reason: 'wrong DOI' },
       discrepancies: [{ field: 'doi', claimed: '10.1/fake', resolved: '(none)', similarity: 0 }],
     },
-    { index: 3, raw: 'r', pmid: '99999999', tier: { tier: 4, label: 'Hallucination', reason: 'no record' }, discrepancies: [] },
+    { index: 3, raw: 'r', pmid: '99999999', lookupVerified: 'false', resolverOutcomes: { pubmed: { status: 'unmatched', queriedBy: 'id' } }, tier: { tier: 4, label: 'Hallucination', reason: 'no record' }, discrepancies: [] },
   ],
 };
 

@@ -5,6 +5,7 @@
  *   npm run build
  *   node benchmark/run.mjs            # uses benchmark/cases.jsonl
  *   node benchmark/run.mjs --mailto you@example.com
+ *   node benchmark/run.mjs --cache .tmp/evidentia-bench-cache.json
  *
  * Each case in cases.jsonl has an `expected_tier`. This runs the real engine
  * against the live registries and reports per-case and overall accuracy.
@@ -17,6 +18,8 @@ import { verifyText } from '../dist/index.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const mailtoIdx = process.argv.indexOf('--mailto');
 const mailto = mailtoIdx >= 0 ? process.argv[mailtoIdx + 1] : undefined;
+const cacheIdx = process.argv.indexOf('--cache');
+const cachePath = cacheIdx >= 0 ? process.argv[cacheIdx + 1] : undefined;
 
 const raw = await readFile(join(__dirname, 'cases.jsonl'), 'utf8');
 const cases = raw.split('\n').filter(Boolean).map((l) => JSON.parse(l));
@@ -24,7 +27,10 @@ const cases = raw.split('\n').filter(Boolean).map((l) => JSON.parse(l));
 let correct = 0;
 const rows = [];
 for (const c of cases) {
-  const report = await verifyText(c.text, mailto ? { mailto } : {});
+  const report = await verifyText(c.text, {
+    ...(mailto ? { mailto } : {}),
+    ...(cachePath ? { cachePath } : {}),
+  });
   const got = report.citations[0]?.tier.tier ?? null;
   const ok = got === c.expected_tier;
   if (ok) correct++;

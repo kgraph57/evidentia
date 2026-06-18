@@ -4,7 +4,7 @@
 
 ### AIが捏造した医学引用を、公開前に捕まえる。
 
-Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenAlex** に照合し、4段階で分類します。さらに Claude Code 上では、15項目のエビデンス評価を重ねて A〜F のレポートを生成します。作者は小児科専門医。
+Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov** に照合し、4段階で分類します。さらにエージェントスキルでは、15項目のエビデンス評価を重ねて A〜F のレポートを生成します。作者は小児科専門医。
 
 [![npm](https://img.shields.io/npm/v/evidentia?color=cb3837&logo=npm)](https://www.npmjs.com/package/evidentia)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -36,6 +36,13 @@ npx evidentia check your-article.md
 ```
 
 あとは「この記事をファクトチェックして」と言うだけです。
+
+**Codex Desktop プラグインとして**:
+
+```text
+Marketplace source: https://github.com/kgraph57/evidentia.git
+Plugin: evidentia
+```
 
 ## 何を捕まえるのか
 
@@ -82,6 +89,8 @@ Evidentia は「機械が完璧にできる部分」と「判断を要する部�
 claude mcp add evidentia -- npx -y evidentia-mcp
 ```
 
+JSON出力には、人間向けの4段階判定に加えて `lookupVerified` と `resolverOutcomes` が含まれます。どのレジストリに何を照合し、`matched / unmatched / unreachable / skipped` のどれだったかを機械的に追跡できます。
+
 ## CIで使う
 
 捏造引用を混入させたプルリクエストをブロックします:
@@ -100,6 +109,7 @@ claude mcp add evidentia -- npx -y evidentia-mcp
 npx evidentia check article.md            # 単発・インストール不要
 npm install -g evidentia                   # グローバルインストール
 evidentia check article.md --format md --out report.md
+evidentia check article.md --cache ~/.cache/evidentia/cache.json
 ```
 
 ### Claude Code スキル / プラグイン
@@ -126,7 +136,8 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 ## ロードマップ
 
 - [ ] `evidentia-bench` — 実在 vs 捏造の医学引用のオープンベンチマーク（モデル別捏造率付き）
-- [ ] バッチ/glob入力とJSONサマリのGitHub Action
+- [x] バッチ/glob入力とJSONサマリのGitHub Action
+- [x] arXiv ID検証、resolver trace、ローカルcache
 - [ ] CrossRef/OpenAlex抄録取得によるTier 2文脈チェック支援
 - [ ] スキルのメディアプリセット拡充
 

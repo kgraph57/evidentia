@@ -16,6 +16,7 @@ OPTIONS
   --format <md|text|json>   Output format (default: text)
   --out <file>              Write the report to a file instead of stdout
   --mailto <email>          Contact email for the CrossRef/OpenAlex polite pool
+  --cache <file>            Reuse registry HTTP responses from a local JSON cache
   --fail-on-fabrication     Exit 1 if any citation is mismatch/hallucination (for CI)
   --offline                 Skip all network calls (extraction only)
   -h, --help                Show this help
@@ -30,7 +31,7 @@ EXAMPLES
 Tiers: ✅ Verified · ⚠️ Bibliographic mismatch · ❌ Hallucination · 🔍 Content review needed
 `;
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 
 interface Args {
   command?: string;
@@ -38,6 +39,7 @@ interface Args {
   format: 'md' | 'text' | 'json';
   out?: string;
   mailto?: string;
+  cachePath?: string;
   failOnFabrication: boolean;
   offline: boolean;
   help: boolean;
@@ -102,6 +104,13 @@ function parseArgs(argv: string[]): Args {
           args.mailto = next.value;
         }
         break;
+      case '--cache':
+        {
+          const next = readOptionValue('--cache', i);
+          i = next.nextIndex;
+          args.cachePath = next.value;
+        }
+        break;
       case '--fail-on-fabrication':
         args.failOnFabrication = true;
         break;
@@ -149,7 +158,7 @@ async function fetchUrl(target: string): Promise<string> {
   try {
     const res = await fetch(target, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'evidentia/1.0 (+https://github.com/kgraph57/evidentia)' },
+      headers: { 'User-Agent': 'evidentia/1.1.0 (+https://github.com/kgraph57/evidentia)' },
     });
     if (!res.ok) throw new Error(`Failed to fetch ${target}: HTTP ${res.status}`);
 
@@ -232,6 +241,7 @@ async function main(): Promise<void> {
 
   const opts: VerifyOptions = {
     ...(args.mailto ? { mailto: args.mailto } : {}),
+    ...(args.cachePath ? { cachePath: args.cachePath } : {}),
     offline: args.offline,
   };
 

@@ -21,21 +21,24 @@ papers" is unfalsifiable without a shared, labelled set. This is the seed of one
 | Tier | Meaning |
 |:----:|---------|
 | 1 | Verified — real paper, correct identifier and metadata |
+| 2 | Content review needed — not deterministically falsifiable, such as a book or manual source |
 | 3 | Bibliographic mismatch — real paper, wrong DOI/PMID or metadata |
 | 4 | Hallucination — identifier resolves to nothing, or to a different paper |
 
-(Tier 2, "used out of context," is a semantic judgement and is out of scope for this
-deterministic benchmark.)
+Semantic Tier 2 ("real source, used out of context") is out of scope for this
+deterministic benchmark, but deterministic manual-review cases such as ISBN books
+are included so tools do not over-call hallucinations.
 
 ## Run it
 
 ```bash
 npm run build
 node benchmark/run.mjs --mailto you@example.com
+node benchmark/run.mjs --cache .tmp/evidentia-bench-cache.json
 ```
 
-This runs the real engine against the live CrossRef/PubMed/OpenAlex APIs and prints
-per-case and overall accuracy.
+This runs the real engine against the live CrossRef/PubMed/OpenAlex/arXiv/ClinicalTrials.gov APIs and prints
+per-case and overall accuracy. Pass `--cache <file>` to `evidentia check` in normal use when you want repeat runs to reuse registry responses.
 
 ## Contributing cases
 

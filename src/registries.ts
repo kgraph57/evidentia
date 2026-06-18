@@ -1,7 +1,8 @@
 import type { ResolvedRecord, ExtractedCitation, VerifyOptions } from './types.ts';
 import { titleSimilarity } from './text.ts';
+import { readHttpCache, writeHttpCache } from './cache.ts';
 
-const UA_BASE = 'evidentia/1.0 (https://github.com/kgraph57/evidentia)';
+const UA_BASE = 'evidentia/1.1.0 (https://github.com/kgraph57/evidentia)';
 
 function userAgent(mailto?: string): string {
   return mailto ? `${UA_BASE} mailto:${mailto}` : UA_BASE;
@@ -19,13 +20,20 @@ export class RegistryUnavailableError extends Error {
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Fetch JSON with bounded timeout and retry. Returns parsed JSON on success,
- * `null` on a definitive 404, and throws {@link RegistryUnavailableError} when
- * the registry is rate-limited / erroring / unreachable after all retries — so a
- * single transient blip never crashes a whole verification run.
+ * Fetch a bounded text body with timeout, retry, and optional persistent cache.
+ * Returns `null` on a definitive 404, and throws
+ * {@link RegistryUnavailableError} when the registry is rate-limited / erroring
+ * / unreachable after all retries.
  */
-async function fetchJson(url: string, opts: VerifyOptions): Promise<unknown | null> {
+async function fetchBody(url: string, opts: VerifyOptions): Promise<string | null> {
   if (opts.offline) return null;
+  const cacheKey = `GET ${url}`;
+  const cached = await readHttpCache(opts, cacheKey);
+  if (cached) {
+    if (cached.status === 404) return null;
+    return cached.body ?? '';
+  }
+
   const f = opts.fetchImpl ?? fetch;
   const maxAttempts = (opts.retries ?? 2) + 1;
   let lastError: unknown;
@@ -46,7 +54,9 @@ async function fetchJson(url: string, opts: VerifyOptions): Promise<unknown | nu
         // Other 4xx — not retryable, but still "could not verify", not "fabricated".
         throw new RegistryUnavailableError(`HTTP ${res.status} for ${url}`);
       } else {
-        return await res.json();
+        const body = await res.text();
+        await writeHttpCache(opts, cacheKey, { status: res.status, body });
+        return body;
       }
     } catch (err) {
       if (err instanceof RegistryUnavailableError && !/HTTP (429|5\d\d)/.test(err.message)) {
@@ -62,6 +72,20 @@ async function fetchJson(url: string, opts: VerifyOptions): Promise<unknown | nu
   throw lastError instanceof RegistryUnavailableError
     ? lastError
     : new RegistryUnavailableError(`Request failed for ${url}: ${(lastError as Error)?.message ?? 'unknown'}`);
+}
+
+async function fetchJson(url: string, opts: VerifyOptions): Promise<unknown | null> {
+  const body = await fetchBody(url, opts);
+  if (body === null) return null;
+  try {
+    return JSON.parse(body);
+  } catch (err) {
+    throw new RegistryUnavailableError(`Invalid JSON for ${url}: ${(err as Error).message}`);
+  }
+}
+
+async function fetchText(url: string, opts: VerifyOptions): Promise<string | null> {
+  return fetchBody(url, opts);
 }
 
 /* ----------------------------- CrossRef ----------------------------- */
@@ -174,6 +198,75 @@ export async function lookupClinicalTrial(
     authors: sponsor ? [sponsor] : [],
     year: yearMatch ? Number(yearMatch[0]) : undefined,
     url: `https://clinicaltrials.gov/study/${id.nctId}`,
+    matchScore: 1,
+  };
+}
+
+/* ------------------------------- arXiv ------------------------------ */
+
+function xmlText(xml: string, tag: string): string | undefined {
+  const match = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match?.[1]
+    ?.replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function xmlTexts(xml: string, tag: string): string[] {
+  const out: string[] = [];
+  const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+  for (;;) {
+    const match = re.exec(xml);
+    if (!match) break;
+    const text = match[1]
+      ?.replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (text) out.push(text);
+  }
+  return out;
+}
+
+function stripArxivVersion(id: string): string {
+  return id.replace(/v\d+$/i, '');
+}
+
+export async function lookupArxivById(
+  arxiv: string,
+  opts: VerifyOptions,
+): Promise<ResolvedRecord | null> {
+  const id = stripArxivVersion(arxiv);
+  const xml = await fetchText(
+    `https://export.arxiv.org/api/query?id_list=${encodeURIComponent(id)}`,
+    opts,
+  );
+  if (!xml) return null;
+  const entry = xml.match(/<entry\b[\s\S]*?<\/entry>/i)?.[0];
+  if (!entry) return null;
+
+  const title = xmlText(entry, 'title');
+  if (!title) return null;
+  const published = xmlText(entry, 'published') ?? xmlText(entry, 'updated');
+  const yearMatch = published?.match(/\b(19|20)\d{2}\b/);
+  const doi = xmlText(entry, 'arxiv:doi') ?? xmlText(entry, 'doi');
+  return {
+    source: 'arxiv',
+    arxiv: id,
+    doi: doi?.toLowerCase(),
+    title,
+    authors: xmlTexts(entry, 'name'),
+    year: yearMatch ? Number(yearMatch[0]) : undefined,
+    url: `https://arxiv.org/abs/${id}`,
     matchScore: 1,
   };
 }

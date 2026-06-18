@@ -4,6 +4,29 @@ All notable changes to Evidentia are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/) and the
 [Keep a Changelog](https://keepachangelog.com/) format.
 
+## [1.1.0] — 2026-06-18
+
+### Added
+
+- **arXiv verification**: arXiv IDs now resolve against the arXiv API instead of
+  always falling back to manual review.
+- **Agent-readable resolver traces**: JSON results now include `lookupVerified` and
+  `resolverOutcomes`, exposing matched / unmatched / unreachable / skipped registry
+  outcomes without changing the human-facing 4-tier verdict.
+- **Optional local registry cache**: `--cache <file>` for the CLI, `cachePath` for MCP,
+  and `VerifyOptions.cachePath` for library callers.
+- **Codex Desktop plugin metadata** via `.codex-plugin/plugin.json` and
+  `.agents/plugins/marketplace.json`.
+- **Benchmark expansion** from 19 to 22 cases, adding arXiv and ISBN manual-review
+  coverage.
+
+### Changed
+
+- Hardened TypeScript type resolution with `types: ["node"]` so stray copied
+  `node_modules/@types/*` folders do not break local builds.
+- Updated README, Japanese README, plugin metadata, and package metadata for arXiv,
+  resolver traces, local cache, and Codex plugin installation.
+
 ## [1.0.0] — 2026-06-12
 
 First public release. Evidentia becomes a tool, not just a prompt.
@@ -41,4 +64,5 @@ First public release. Evidentia becomes a tool, not just a prompt.
 - Reference-file paths in `SKILL.md` are now relative and plugin-portable.
 - README rebuilt around a one-line install, a real demo, and the citation layer.
 
+[1.1.0]: https://github.com/kgraph57/evidentia/releases/tag/v1.1.0
 [1.0.0]: https://github.com/kgraph57/evidentia/releases/tag/v1.0.0

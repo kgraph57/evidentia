@@ -12,7 +12,7 @@ import { verifyText } from './index.ts';
 import { renderMarkdown } from './report.ts';
 import type { VerifyOptions } from './types.ts';
 
-const SERVER = { name: 'evidentia', version: '1.0.0' };
+const SERVER = { name: 'evidentia', version: '1.1.0' };
 const SUPPORTED_PROTOCOL = '2025-06-18';
 
 interface RpcRequest {
@@ -38,13 +38,14 @@ const TOOL = {
   name: 'verify_citations',
   description:
     'Verify medical/scientific citations in a block of text against CrossRef, PubMed, and OpenAlex. ' +
-    'Detects fabricated DOIs, invalid PMIDs, and bibliographic mismatches, returning a 4-tier classification ' +
+    'Detects fabricated DOIs, invalid PMIDs, arXiv IDs, and bibliographic mismatches, returning a 4-tier classification ' +
     '(Verified / Bibliographic mismatch / Hallucination / Content review needed) plus a fabrication rate.',
   inputSchema: {
     type: 'object',
     properties: {
       text: { type: 'string', description: 'The text containing citations to verify.' },
       mailto: { type: 'string', description: 'Optional contact email for the CrossRef/OpenAlex polite pool.' },
+      cachePath: { type: 'string', description: 'Optional local JSON cache path for registry HTTP responses.' },
       format: { type: 'string', enum: ['markdown', 'json'], description: 'Output format (default markdown).' },
     },
     required: ['text'],
@@ -55,11 +56,14 @@ async function handleToolCall(params: Record<string, unknown> | undefined): Prom
   if (params?.name !== TOOL.name) {
     throw new Error(`Unknown tool: ${String(params?.name ?? '(missing)')}`);
   }
-  const args = (params?.arguments ?? {}) as { text?: string; mailto?: string; format?: string };
+  const args = (params?.arguments ?? {}) as { text?: string; mailto?: string; cachePath?: string; format?: string };
   if (typeof args.text !== 'string' || !args.text.trim()) {
     throw new Error('Missing required argument: text');
   }
-  const opts: VerifyOptions = args.mailto ? { mailto: args.mailto } : {};
+  const opts: VerifyOptions = {
+    ...(args.mailto ? { mailto: args.mailto } : {}),
+    ...(args.cachePath ? { cachePath: args.cachePath } : {}),
+  };
   const report = await verifyText(args.text, opts);
   const body = args.format === 'json' ? JSON.stringify(report, null, 2) : renderMarkdown(report);
   return { content: [{ type: 'text', text: body }] };
