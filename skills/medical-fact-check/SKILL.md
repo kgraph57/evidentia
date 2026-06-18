@@ -15,11 +15,13 @@ Comprehensive critical appraisal and fact-checking for medical information, prod
 > directory is `~/.claude/skills/medical-fact-check/` (manual copy) or
 > `${CLAUDE_PLUGIN_ROOT}/skills/medical-fact-check/` (installed as the Evidentia plugin).
 >
-> **Deterministic citation engine.** When checking citations (Step 4), prefer the bundled
-> `evidentia` engine over verifying each DOI by hand. If `npx evidentia` is available, it
-> resolves every DOI/PMID against CrossRef, PubMed, and OpenAlex and returns the exact 4-tier
-> classification this skill uses — deterministically, with no risk of the model itself
-> misremembering a paper. See **Step 4** for how to call it.
+> **Deterministic citation engine.** When checking citations (Step 4), prefer the local
+> `evidentia` engine over verifying each identifier by hand. Use the `evidentia`
+> binary first; fall back to `npx -y evidentia` only if a local install is unavailable.
+> Evidentia resolves DOI/PMID/arXiv/NCT identifiers against CrossRef, PubMed,
+> OpenAlex, arXiv, and ClinicalTrials.gov, and emits the 4-tier classification plus
+> `lookupVerified` and `resolverOutcomes` lookup traces. Use a cache path when possible
+> so repeat checks are stable and fast. See **Step 4** for how to call it.
 
 ## Overview
 
@@ -142,16 +144,23 @@ If the content cites papers or sources, verify them. **Prefer the deterministic 
 
 #### 4a. Run the deterministic engine (existence + bibliographic accuracy)
 
-If `npx evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves every DOI/PMID/NCT against CrossRef, PubMed, OpenAlex, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty — no model guesswork. Books (ISBN), guidelines, and other non-indexed sources are returned as Tier 2 ("verify manually"), never as fabrications:
+If `evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves DOI/PMID/arXiv/NCT identifiers against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty - no model guesswork. Books (ISBN), guidelines, title-only citations, and other non-indexed sources are returned as Tier 2 ("verify manually"), never as fabrications:
 
 ```bash
-npx evidentia check <file-or-url> --format json --mailto <your-email>
+evidentia check <file-or-url> --format json --cache "$HOME/.cache/evidentia/verification-cache.json" --mailto <your-email>
 ```
 
-Use its output as the ground truth for citation *existence*:
+If the local binary is unavailable, fall back to the npm package:
 
-- **Tier 1 (Verified)** — the paper exists and metadata matches. Proceed to the context check in 4b.
-- **Tier 3 (Bibliographic mismatch)** — a real paper exists, but the DOI/PMID or metadata is wrong. Record the discrepancy.
+```bash
+npx -y evidentia check <file-or-url> --format json --cache "$HOME/.cache/evidentia/verification-cache.json" --mailto <your-email>
+```
+
+Use its output as the ground truth for citation *existence*. Inspect `lookupVerified` and `resolverOutcomes` when explaining why a citation was classified:
+
+- **Tier 1 (Verified)** — the paper, preprint, or trial exists and metadata matches. Proceed to the context check in 4b.
+- **Tier 2 (Manual / content review needed)** — the source may be real, but the engine cannot deterministically verify it or semantic use still needs review.
+- **Tier 3 (Bibliographic mismatch)** — a real record exists, but the DOI/PMID/arXiv/NCT identifier or metadata is wrong. Record the discrepancy.
 - **Tier 4 (Hallucination)** — the identifier resolves to nothing or to a different paper. Flag as a fabricated citation immediately; this is the highest-severity finding.
 
 If the engine is not available, fall back to verifying each identifier manually with `WebSearch` (steps below).
