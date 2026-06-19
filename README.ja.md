@@ -10,7 +10,7 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](https://code.claude.com/docs/en/skills)
 
-[English](README.md) · **日本語**
+[![English](https://img.shields.io/badge/README-English-1f6feb?style=for-the-badge)](README.md) [![日本語](https://img.shields.io/badge/README-日本語-d97757?style=for-the-badge)](README.ja.md)
 
 </div>
 
