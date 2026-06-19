@@ -179,6 +179,8 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 
 ## How verification works
 
+<div align="center"><img src="assets/flow.svg" alt="Flow: article.md to extract identifiers to resolve against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov, fanning out to the four verdicts — verified, bibliographic mismatch, hallucination, content review" width="900"></div>
+
 For each citation, Evidentia extracts every identifier (DOI, PMID, arXiv, **NCT trial ID, ISBN**) and any nearby title/author/year, then:
 
 1. **Resolves the DOI** against CrossRef, falling back to OpenAlex.

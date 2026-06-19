@@ -170,6 +170,8 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 
 ## 検証の仕組み
 
+<div align="center"><img src="assets/flow.svg" alt="フロー: article.md から識別子を抽出し、CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov に照合して、4段階の判定（検証済み・書誌の不一致・ハルシネーション・文脈レビュー）に振り分ける" width="900"></div>
+
 各引用について、Evidentia はすべての識別子（DOI・PMID・arXiv・**NCT試験ID・ISBN**）と近接するタイトル/著者/年を抽出し、次を行います:
 
 1. **DOIを解決** — CrossRef に照合し、なければ OpenAlex にフォールバック。
