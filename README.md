@@ -4,6 +4,8 @@
 
 ### Catch AI-fabricated medical citations before you publish.
 
+**AIが捏造した医学引用を、公開前に捕まえる。**
+
 The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion agent skill adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
 
 <img src="assets/demo.svg" alt="Evidentia flagging 3 of 4 citations in an AI-generated medical answer as fabricated or mismatched" width="760">
@@ -15,6 +17,8 @@ The `evidentia` command verifies every citation in a piece of medical writing ag
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-6e56cf)](https://code.claude.com/docs/en/skills)
 
 [![English](https://img.shields.io/badge/README-English-1f6feb?style=for-the-badge)](README.md) [![日本語](https://img.shields.io/badge/README-日本語-d97757?style=for-the-badge)](README.ja.md)
+
+📖 日本語で読む方は **[日本語版 README → README.ja.md](README.ja.md)** へ
 
 </div>
 

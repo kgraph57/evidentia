@@ -12,6 +12,8 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 
 [![English](https://img.shields.io/badge/README-English-1f6feb?style=for-the-badge)](README.md) [![日本語](https://img.shields.io/badge/README-日本語-d97757?style=for-the-badge)](README.ja.md)
 
+🌐 For English, see **[README.md](README.md)**
+
 </div>
 
 ---
