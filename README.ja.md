@@ -10,6 +10,8 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](https://code.claude.com/docs/en/skills)
 
+[English](README.md) · **日本語**
+
 </div>
 
 ---
@@ -101,6 +103,36 @@ JSON出力には、人間向けの4段階判定に加えて `lookupVerified` と
 
 `--fail-on-fabrication` は、いずれかの引用が不一致・ハルシネーションなら非ゼロ終了します。
 
+## 15項目の評価スキル（Claude Code）
+
+スキルとして呼び出すと、Evidentia は医学コンテンツを15の観点で評価し、メディアの種類（研究論文・ニュース記事・SNS投稿・患者向けリーフレット・学会スライド・診療ガイドライン・製薬マーケティング・AI生成テキスト）に応じて評価軸を調整します。
+
+<details>
+<summary><b>15の評価項目</b></summary>
+
+1. エビデンスレベルと研究デザイン
+2. 引用・出典の正確さ *(上記エンジンが担当)*
+3. 統計解釈
+4. 因果と相関
+5. バイアスと利益相反
+6. 誇張・過大主張
+7. 対象集団への適合
+8. 時間的妥当性
+9. 専門用語と読みやすさのバランス
+10. 倫理的配慮
+11. 論理的整合性
+12. 図表
+13. 代替説明
+14. 臨床的妥当性
+15. 情報の完全性
+
+各項目を **Excellent / Good / Fair / Poor** で評価し、総合 **A〜F** スコアと **公衆衛生リスクレベル**（LOW / MEDIUM / HIGH）に集約します。詳細は [`skills/medical-fact-check/SKILL.md`](skills/medical-fact-check/SKILL.md)。
+</details>
+
+## エージェントから使う
+
+スキルはオープンな [Agent Skills](https://code.claude.com/docs/en/skills) の `SKILL.md` 標準に準拠しているため、Claude Code で今すぐ読み込めるほか、この形式を採用する任意のエージェントで動きます。エンジンは素のnpmパッケージかつMCPサーバーなので、Claude Code・Codex CLI・Cursor・自作スクリプトから利用できます。
+
 ## インストール
 
 ### CLI
@@ -110,6 +142,16 @@ npx evidentia check article.md            # 単発・インストール不要
 npm install -g evidentia                   # グローバルインストール
 evidentia check article.md --format md --out report.md
 evidentia check article.md --cache ~/.cache/evidentia/cache.json
+```
+
+```text
+evidentia check <file|url|->   ファイル・Webページ・標準入力の引用を検証
+  --format <md|text|json>      出力形式（既定: text）
+  --out <file>                 レポートをファイルに書き出す
+  --mailto <email>             CrossRef/OpenAlex polite pool 用の連絡先メール
+  --cache <file>               レジストリのHTTP応答をローカルJSONキャッシュから再利用
+  --fail-on-fabrication        不一致/ハルシネーションがあれば終了コード1（CI用）
+  --offline                    抽出のみ・ネットワークなし
 ```
 
 ### Claude Code スキル / プラグイン
@@ -125,6 +167,23 @@ evidentia check article.md --cache ~/.cache/evidentia/cache.json
 git clone https://github.com/kgraph57/evidentia.git
 cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 ```
+
+## 検証の仕組み
+
+各引用について、Evidentia はすべての識別子（DOI・PMID・arXiv・**NCT試験ID・ISBN**）と近接するタイトル/著者/年を抽出し、次を行います:
+
+1. **DOIを解決** — CrossRef に照合し、なければ OpenAlex にフォールバック。
+2. **PMIDを解決** — PubMed E-utilities に照合。
+3. **arXiv IDを解決** — arXiv API に照合。
+4. **NCT試験IDを解決** — ClinicalTrials.gov に照合。
+5. 識別子が解決しなければ、**タイトルで検索**（OpenAlex）。これにより *「実在する論文・DOIが誤り」*（Tier 3）と *「論文自体が存在しない」*（Tier 4）を区別します。
+6. 引用のタイトル/著者/年をレジストリ記録と **照合**し、識別子が黙って別の論文を指していないか確認します。
+
+各JSON引用には `lookupVerified`（`true` / `false` / `unresolvable`）と `resolverOutcomes`（`matched` / `unmatched` / `unreachable` / `skipped`、識別子・タイトルどちらで照合したかを含む）が付き、人間向けの4段階判定を変えずにエージェントの処理を監査可能にします。
+
+**何をフラグ *しない* か** も意図的に慎重です。書籍（ISBN）・診療ガイドライン・これらのレジストリに収載されない情報源は *「手動で確認」*（Tier 2）とし、決して *「ハルシネーション」* とはしません。捏造判定が付くのは、本来解決するはずの DOI/PMID/arXiv/NCT 識別子が解決しない場合だけです。識別子のない参考文献も、黙って飛ばさずレビュー対象として表示します。
+
+すべてのレジストリは無料・キー不要です。`--mailto` を付けると高速な「polite pool」に参加できます。
 
 ## 実例
 

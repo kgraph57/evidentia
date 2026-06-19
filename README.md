@@ -14,6 +14,8 @@ The `evidentia` command verifies every citation in a piece of medical writing ag
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](https://code.claude.com/docs/en/skills)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-6e56cf)](https://code.claude.com/docs/en/skills)
 
+**English** · [日本語](README.ja.md)
+
 </div>
 
 ---
@@ -222,8 +224,6 @@ Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security repo
 ## About the author
 
 Built by **Ken Okamoto, MD** — a board-certified pediatrician and medical-AI entrepreneur. Evidentia comes out of the daily problem of separating real evidence from confident-sounding fabrication in AI-assisted medical writing.
-
-> 日本語の概要は [README.ja.md](README.ja.md) を参照してください。
 
 ## License
 
