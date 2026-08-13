@@ -74,7 +74,9 @@ Four named loops. Each has a stop condition. "FAIL" means the gate did not clear
 
 **Then:** if still down, mark affected citations `unresolved`. Continue the rest of the appraisal. Do **not** guess Hallucination without a failed identifier lookup.
 
-**Do not:** override a returned Tier 4 because the title "sounds real." Do not invent Tier 1 from WebSearch when the engine already said 3 or 4. Manual WebSearch is the fallback only when the engine is unavailable, and even then a 404/empty registry hit is Hallucination — a book, guideline, or title-only cite is still Tier 2.
+**Then (skill, not a new tier):** for each T4, run claimed-title confirmation (`references/citadel-confirmation.md`). For each T1, check retraction.
+
+**Do not:** override a returned Tier 4 because the title "sounds real."  Do not invent Tier 1 from WebSearch when the engine already said 3 or 4. Manual WebSearch is the fallback only when the engine is unavailable, and even then a 404/empty registry hit is Hallucination — a book, guideline, or title-only cite is still Tier 2.
 
 ### 2. Semantic loop
 
@@ -119,6 +121,17 @@ Step 9 is a protocol, not an optional courtesy.
 
 **FAIL:** a new Tier 4, a new KILL/MAJOR, or an unfixed previous KILL/MAJOR. Do not raise the letter grade while those remain.
 
+
+## CITADEL overlap
+
+Stolen from CITADEL (Topaz et al., *Lancet* 2026) and refused where it would make us worse.
+
+**Steal.** Fabrication is confirmed when the *claimed title* is absent from independent databases (PubMed, Crossref, OpenAlex, plus a Scholar-like web search). The dominant pattern is a plausible title on a real PMID/DOI of an unrelated paper in the same journal and year. The core of detection is a binary registry check, not an LLM vibe. The institutional move is a **ship gate** before the next human sees the piece (`references/ship-gate.md`).
+
+**Refuse.** Do not drop grey literature because it lacks a PMID (CITADEL excluded 23%). Those stay **Tier 2**. Do not let an LLM decide existence. Do not override engine T4. Do not use their "12-fold" figure in our materials (~10-fold is the 1 in 2,828 to 1 in 277 ratio).
+
+Title confirmation and retraction checks are **skill-side**. They do not create a new engine tier. See `references/citadel-confirmation.md`.
+
 ## Hard rules
 
 1. Engine output is ground truth for existence. The LLM must not override Tier 4 to "probably real."
@@ -127,6 +140,9 @@ Step 9 is a protocol, not an optional courtesy.
 4. Semantic mismatch of a real paper is Tier 2, not Tier 4.
 5. Not CDS. Do not recommend treatments, doses, or "what the patient should do."
 6. The AI recommends; the human publishes.
+7. After every T4, confirm the claimed title (CITADEL-style) before KILL. Do not override T4.
+8. After every T1, check retraction / Crossref update-to. Unlabeled retraction cannot ship as current evidence.
+9. AMPL / org shipping applies `references/ship-gate.md`.
 
 ## What FAIL does *not* mean
 

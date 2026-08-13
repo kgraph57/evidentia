@@ -17,6 +17,7 @@ Trust the engine. Look for swapped DOIs, invented PMIDs, "the author exists but 
 - Engine Tier 4 presented as a real source → this lens fails hard (KILL).
 - Engine Tier 3 (bibliographic mismatch) presented as clean → at least MAJOR unless already disclosed in the draft.
 - Do not "rescue" a Tier 4 because a similarly titled paper exists.
+- **CITADEL dominant pattern (KILL):** a plausible title attached to a real PMID/DOI that resolves to an unrelated paper in the **same journal and year**. Confirm the claimed title is absent (or lives under another id) per `references/citadel-confirmation.md`. Keep the engine T4 either way.
 
 ### 2. Claim support
 
@@ -55,7 +56,7 @@ KILL or MAJOR: do **not** emit a clean A-score as if publishable. Tell the user 
 The agent must actually answer each line: **yes / no** plus a one-line evidence note. "n/a" is allowed only where a line cannot apply (e.g. no citations). Blank is a fail.
 
 1. Did I run the engine (`evidentia check --format json` or MCP `verify_citations`)? If not, did I mark citations `unresolved` instead of guessing a tier?
-2. Did I refuse to override any engine Tier 4 to "probably real"?
+2. Did I refuse to override any engine Tier 4 to "probably real," and did I confirm the claimed title is absent from independent databases or swapped onto another id?
 3. Did I treat ISBN / guideline / title-only cites as Tier 2 (Content review needed), never Hallucination?
 4. Did I read an abstract for each Tier 1 citation used to support a numeric or causal claim? (One extra lookup, then stop.)
 5. Does every cited numeric claim match the paper's actual primary finding, population, and effect direction?

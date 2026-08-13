@@ -1,21 +1,21 @@
 ---
 name: medical-fact-check
-description: "Comprehensive medical fact-checking and critical appraisal skill. Evaluates any medical content — research papers, articles, social media posts, newsletters, YouTube/podcast transcripts, conference slides, clinical guidelines, pharma marketing, patient leaflets, health app content, and more — across 15 criteria for accuracy, evidence quality, and appropriateness. Generates a structured Markdown report with an A–F score and actionable improvement suggestions. Triggers: 'fact-check', 'evidence check', 'evaluate this article', 'check this post', 'ファクトチェック', 'エビデンスチェック', 'この記事を評価して', 'この投稿の問題点'."
+description: "Pre-publish QA for medical writing (AMPL company gate, open protocol). Deterministic citation engine plus CITADEL-style claimed-title confirmation, 15-criteria appraisal, adversarial KILL, and a ship gate. Evaluates papers, posts, slides, guidelines, marketing, patient materials, AI-generated copy. Report with A-F, integrity stamp, ship: no/caveats/human-ack. Triggers: fact-check, evidence check, evaluate this article, check this post, ship gate, QA, ファクトチェック, エビデンスチェック, この記事を評価して, この投稿の問題点."
 ---
 
 # Medical Fact-Check Skill
 
-Comprehensive critical appraisal and fact-checking for medical information, producing a structured report.
+AMPL's quality assurance for medical writing, published as an open protocol. Critical appraisal plus a ship gate: the piece does not go out with a fabricated identifier presented as real.
 
 > **Scope.** This is a pre-publication aid for writers, editors, and researchers — **not clinical decision support.** It evaluates how medical *content* is written and sourced; it does not diagnose, treat, or replace professional medical judgment. Do not recommend treatments.
 
-> **Must-read before scoring.** Use the `Read` tool on `references/verification-workflow.md` (operating model, loops, hard rules) and `references/adversarial-review.md` (red-team, KILL/MAJOR/MINOR/PASS) before you emit a letter grade. Also load `references/checklist.md`, `references/evidence-levels.md`, `templates/claim-ledger.md`, and `templates/report-template.md`. Depending on install, the skill directory is `~/.claude/skills/medical-fact-check/` (manual copy) or `${CLAUDE_PLUGIN_ROOT}/skills/medical-fact-check/` (Evidentia plugin).
+> **Must-read before scoring.** Use the `Read` tool on `references/verification-workflow.md` (operating model, loops, hard rules), `references/adversarial-review.md` (red-team, KILL/MAJOR/MINOR/PASS), `references/citadel-confirmation.md` (claimed-title confirmation after T4), and `references/ship-gate.md` (company / publisher QA) before you emit a letter grade or a ship stamp. Also load `references/checklist.md`, `references/evidence-levels.md`, `templates/claim-ledger.md`, and `templates/report-template.md`. Depending on install, the skill directory is `~/.claude/skills/medical-fact-check/` (manual copy) or `${CLAUDE_PLUGIN_ROOT}/skills/medical-fact-check/` (Evidentia plugin).
 
 > **Deterministic citation engine.** When checking citations (Step 4), prefer the local `evidentia` engine over verifying each identifier by hand. Use the `evidentia` binary first; fall back to `npx -y evidentia` only if a local install is unavailable. Evidentia resolves DOI/PMID/arXiv/NCT identifiers against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov, and emits the 4-tier classification plus `lookupVerified` and `resolverOutcomes` lookup traces. Use a cache path when possible so repeat checks are stable and fast. See **Step 4** for how to call it.
 
 ## Overview
 
-This skill evaluates medical information across **15 criteria** — evidence quality, citation accuracy, statistical interpretation, ethical considerations, and more — then generates a structured Markdown report with an overall **A–F score** and actionable improvement suggestions.
+This skill is a **pre-publish QA gate**. It evaluates medical information across **15 criteria**, confirms fabrications the CITADEL way (claimed title absent from independent databases), then generates a structured Markdown report with an overall **A–F score**, an integrity stamp, and a ship decision (no / caveats / human-ack).
 
 ### Supported Media Types
 
@@ -182,6 +182,21 @@ Fallback if the local binary is unavailable:
 
 Use its output as the ground truth for citation *existence*. Inspect `lookupVerified` and `resolverOutcomes` when explaining why a citation was classified. Write the engine tier into the claim ledger.
 
+#### 4a2. CITADEL-style title confirmation (every T4)
+
+Read `references/citadel-confirmation.md`. For every engine **Tier 4**, search the **claimed title from the draft** in PubMed, Crossref/OpenAlex, and one Scholar-like web search *before* you write KILL.
+
+- 0 hits in all → fabrication confirmed. Keep T4. KILL if presented as real.
+- Title exists under another identifier → keep T4 for the cited id. Do **not** upgrade to T1. Still KILL if the draft presents that id as that paper. Note "claimed work may exist under another id."
+- Never override T4 because authors sound real or the journal/year match.
+
+This is not a new engine tier. The engine remains ground truth for the identifier.
+
+#### 4a3. Retraction check (every T1)
+
+For every **Tier 1**, check PubMed "Retracted Publication" / Crossref `update-to`. If retracted: ledger note `retracted`. T1 stays T1 (the paper existed). It cannot ship as current evidence unless the draft says so.
+
+
 - **Tier 1 (Verified)** — the paper, preprint, or trial exists and metadata matches. Proceed to the context check in 4b.
 - **Tier 2 (Content review needed)** — the source may be real, but the engine cannot deterministically verify it in registries, or semantic use still needs review.
 - **Tier 3 (Bibliographic mismatch)** — a real record exists, but the DOI/PMID/arXiv/NCT identifier or metadata is wrong. Record the discrepancy.
@@ -295,6 +310,7 @@ Save the completed report as a Markdown file using `Write`:
   - The file path
   - A concise summary of findings (3–5 sentences)
   - The overall score, adversarial verdict, and risk level
+  - The **ship stamp** (no / caveats / human-ack) from `references/ship-gate.md` — default on for AMPL / org QA
   - Top 3 most important issues to address
 
 ### Step 9: Correction loop (up to 3)
@@ -403,6 +419,8 @@ Patient materials prioritize accessibility and safety:
 
 - `references/verification-workflow.md` — operating model, two layers, named loops, hard rules (must-read before scoring)
 - `references/adversarial-review.md` — five lenses, attack checklist, KILL/MAJOR/MINOR/PASS (must-read before scoring)
+- `references/citadel-confirmation.md` — claimed-title confirmation after T4; T1 retraction check
+- `references/ship-gate.md` — AMPL / publisher pre-publish QA (cannot-ship rules, integrity stamp)
 - `references/checklist.md` — detailed 15-item evaluation checklist
 - `references/evidence-levels.md` — evidence hierarchy & quality assessment tools
 - `templates/claim-ledger.md` — claim table filled before the engine call

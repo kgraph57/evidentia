@@ -278,6 +278,13 @@ Scoring gates: a **KILL** forces overall score ≤ D (F if ethics, harm, or fabr
 
 ---
 
+
+## 4b. Integrity stamp / ship gate
+
+See `references/ship-gate.md`. **AMPL QA**: [yes/no]. **Ship**: [no / caveats / human-ack]. **T4 title confirmation**: [done / n/a]. **Retractions**: [none / list]. **Databases**: CrossRef, PubMed, OpenAlex, arXiv, ClinicalTrials.gov. **Timestamp**: [ISO-8601].
+
+---
+
 ## 5. Adversarial review
 
 **Pass number**: [1 / 2 / 3 of 3]
@@ -303,7 +310,7 @@ Scoring gates: a **KILL** forces overall score ≤ D (F if ethics, harm, or fabr
 | # | Question | Yes / No / n/a | Evidence |
 |---|----------|----------------|----------|
 | 1 | Did I run the engine? If not, marked unresolved rather than guessed a tier? | | |
-| 2 | Refused to override any engine Tier 4 to "probably real"? | | |
+| 2 | Refused to override T4, and confirmed claimed title absent or swapped? | | |
 | 3 | ISBN / guideline / title-only treated as Content review needed, never Hallucination? | | |
 | 4 | Read an abstract for each T1 citation used to support a numeric or causal claim? | | |
 | 5 | Every cited numeric claim matches the paper's primary finding, population, and effect direction? | | |
