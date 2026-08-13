@@ -88,6 +88,8 @@ flowchart TD
   H -->|no or cap| I[Stop]
 ```
 
+Worked example: `examples/case-studies/vitamin-d-adversarial.md`.
+
 ## Workflow
 
 Stage-gated. Do not skip the ledger, the engine, or adversarial review.

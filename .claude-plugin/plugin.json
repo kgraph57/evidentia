@@ -3,7 +3,7 @@
   "name": "evidentia",
   "displayName": "Evidentia — Medical Evidence & Citation Audit",
   "version": "1.1.0",
-  "description": "Pre-publication evidence audit for medical and health content. Catches AI-fabricated DOIs, PMIDs, arXiv IDs, and trial registrations, then grades any health claim with a 15-criteria, physician-built rubric (A–F report).",
+  "description": "Pre-publication evidence audit for medical and health content. Catches AI-fabricated DOIs, PMIDs, arXiv IDs, and trial registrations; fills a claim ledger; then grades with a 15-criteria rubric and an adversarial KILL gate (A–F report).",
   "author": {
     "name": "Ken Okamoto, MD"
   },

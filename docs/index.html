@@ -18,6 +18,7 @@
 <nav class="site-nav" aria-label="Site"><a href="#feel">Demo</a>
 <a href="#tiers">4-tier</a>
 <a href="#layers">Layers</a>
+<a href="#verify">Verify</a>
 <a href="#start">Install</a>
 <a href="./ja/" hreflang="ja">日本語</a></nav>
 <a class="btn btn-ghost star-btn" href="https://github.com/kgraph57/evidentia" rel="noopener">★ Star on GitHub</a></div></header>
@@ -50,10 +51,26 @@
 <div class="layer-grid"><article class="layer-card"><span class="layer-kicker">Engine · CLI + MCP</span>
 <h3>Does this paper exist?</h3>
 <p>Pure registry lookup. DOI, PMID, arXiv, NCT vs CrossRef, PubMed, OpenAlex, arXiv, ClinicalTrials.gov. No API key, no LLM, no hallucination of its own.</p>
-<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">Skill · 15 criteria</span>
+<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">Skill · four loops</span>
 <h3>Is it used honestly?</h3>
-<p>Wraps the engine in a 15-criteria appraisal: evidence level, statistics, causation vs correlation, conflicts, exaggeration, population fit, ethics — an A–F report with concrete fixes. This is the Tier 2 layer the engine cannot do alone.</p>
+<p>Claim ledger, then four named loops: engine, semantic, adversarial, correction. The 15-criteria rubric is one pass inside that pipeline. KILL or MAJOR cannot ship as A.</p>
 <p><code>npx skills add kgraph57/evidentia</code></p></article></div></div></section>
+<section id="verify" aria-label="How the skill verifies"><div class="wrap"><span class="kicker">How the skill actually verifies</span>
+<h2>Claim ledger first. Four loops. KILL is a feature.</h2>
+<p class="section-lede">The 15-criteria rubric is one pass inside the pipeline, not the product. Existence is the engine. Honesty is the skill. A fabricated DOI presented as real is a <strong>KILL</strong> — overall ≤ D, F if fabrication. That is the system working.</p>
+<div class="loop-grid"><article class="loop-card"><span class="loop-kicker">01 · Engine</span>
+<h3>Does it exist?</h3>
+<p>Registry lookup. Retry once if unreachable; then unresolved, never a guessed hallucination.</p></article>
+<article class="loop-card"><span class="loop-kicker">02 · Semantic</span>
+<h3>Is the real paper used honestly?</h3>
+<p>One extra abstract lookup per Tier 1 cite. Primary outcome, population, direction of effect. Does not upgrade a T3 or T4.</p></article>
+<article class="loop-card loop-kill"><span class="loop-kicker">03 · Adversarial</span>
+<h3>KILL is a feature</h3>
+<p>Five lenses. KILL / MAJOR / MINOR / PASS. KILL or MAJOR cannot ship as A. Max 3 passes.</p></article>
+<article class="loop-card"><span class="loop-kicker">04 · Correction</span>
+<h3>Revise, then re-enter from the engine</h3>
+<p>Cap 3. Then stop and report what is still open. Do not raise the letter while a T4 remains.</p></article></div>
+<p class="verify-case">Worked example: <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">vitamin D — claim ledger → engine → semantic → KILL</a>.</p></div></section>
 <section id="start" aria-label="Install"><div class="wrap"><span class="kicker">60-second start</span>
 <h2>Three ways in. CLI first.</h2>
 <p class="section-lede">No API key. MIT. Pick the path that matches how you write.</p>
@@ -70,5 +87,5 @@
 <hr class="ft-divider">
 <div class="ft-small"><p>MIT License · Evidentia v1.1.0 · Copyright (c) 2026 Ken Okamoto, MD</p>
 <p>Not clinical decision support. Does not diagnose, treat, or replace professional medical judgment.</p>
-<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">registry</a></li><li><a href="./ja/" hreflang="ja">日本語</a></li></ul></div></div></footer>
+<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">npm</a></li><li><a href="./ja/" hreflang="ja">日本語</a></li></ul></div></div></footer>
 <script src="./site/js/main.js" defer=""></script></body></html>
