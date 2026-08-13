@@ -48,12 +48,12 @@ AI-generated content (ChatGPT, Claude, Gemini, etc.) frequently contains plausib
 
 ### Citation Classification (4 Tiers)
 
-Classify each citation verification result:
+Classify each citation verification result. Run the engine first — see `references/verification-workflow.md` for the engine loop (retry once if unreachable; mark `unresolved`, not Hallucination, if it stays down; never override a returned Tier 4).
 
 | Tier | Classification | Description |
 |------|---------------|-------------|
 | 1 | **Verified** | Paper exists and content matches the citation |
-| 2 | **Content mismatch** | Paper exists but is cited out of context or misrepresented |
+| 2 | **Content review needed** | Covers both semantic misuse (real paper, wrong or cherry-picked claim) AND unindexed sources the engine cannot resolve in registries (ISBN, guidelines, title-only). Never treat those as Hallucination. |
 | 3 | **Bibliographic mismatch** | Paper exists but DOI, author, or journal info is incorrect |
 | 4 | **Hallucination** | DOI points to an unrelated paper, or the paper does not exist at all |
 
