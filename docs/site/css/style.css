@@ -425,3 +425,35 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   .js .cli[data-cli] .cli-line { opacity: 1; transform: none; transition: none; }
 }
+
+
+/* ---------- verify loops ---------- */
+
+.loop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) { .loop-grid { grid-template-columns: 1fr; } }
+.loop-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--navy);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+}
+.loop-card h3 { margin: 0 0 8px; font-size: 17px; }
+.loop-card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+.loop-kicker {
+  display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--navy); font-weight: 700; margin-bottom: 8px;
+}
+.loop-card.loop-kill { border-top-color: var(--tier-hal); }
+.loop-card.loop-kill .loop-kicker { color: var(--tier-hal); }
+.verify-case {
+  margin: 22px 0 0;
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 48em;
+}

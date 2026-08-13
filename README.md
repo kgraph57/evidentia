@@ -8,7 +8,7 @@
 
 **Site:** [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
 
-The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion agent skill adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
+The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion agent skill starts with a **claim ledger**, then runs four named loops (engine, semantic, adversarial, correction) before any A–F score. Built by a board-certified pediatrician.
 
 <img src="assets/demo.svg" alt="Evidentia flagging 3 of 4 citations in an AI-generated medical answer as fabricated or mismatched" width="760">
 
@@ -42,7 +42,7 @@ Homepage: [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evi
 npx evidentia check your-article.md
 ```
 
-**As an agent skill** (full 15-criteria appraisal; works because `SKILL.md` is at `skills/medical-fact-check/SKILL.md`):
+**As an agent skill** (claim ledger + four verification loops; works because `SKILL.md` is at `skills/medical-fact-check/SKILL.md`):
 
 ```bash
 npx skills add kgraph57/evidentia
@@ -79,7 +79,7 @@ Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrica
   [MIS] doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).
 ```
 
-One citation was real. One DOI was invented. One PMID pointed to an unrelated paper. One had the wrong year. **A human reviewer would have to check all four by hand.** Evidentia did it in seconds. See the [full report](examples/reports/ai-generated-answer.report.md).
+One citation was real. One DOI was invented. One PMID pointed to an unrelated paper. One had the wrong year. **A human reviewer would have to check all four by hand.** Evidentia did it in seconds. See the [full engine report](examples/reports/ai-generated-answer.report.md). The skill pipeline on this same file — claim ledger → semantic → adversarial **KILL** — is walked in [examples/case-studies/vitamin-d-adversarial.md](examples/case-studies/vitamin-d-adversarial.md).
 
 > This is a deliberately tough example. Most carefully written articles score far lower — Evidentia's value is catching the handful that slip through, every time, without fatigue.
 
@@ -100,9 +100,61 @@ Evidentia is deliberately split into a part a computer can do perfectly and a pa
 
 **1. The engine (CLI + MCP server)** — pure, deterministic citation verification. No API key, no LLM, no hallucination of its own. It answers one question with certainty: *does this cited paper actually exist, and does the identifier point to it?* Use it in a terminal, in CI, or as an MCP tool inside any agent.
 
-**2. The skill (Claude Code)** — wraps the engine in a full **15-criteria critical-appraisal rubric**: evidence level, statistical interpretation (relative vs. absolute risk, NNT), causation vs. correlation, conflicts of interest, exaggeration, population fit, ethics, and more — producing an **A–F report** with concrete fixes. This is the Tier-2 "is it used correctly?" layer the engine can't do alone.
+**2. The skill (Claude Code)** — wraps the engine in a **claim ledger** and four named loops: engine, semantic honesty, adversarial red-team, correction (cap 3). The 15-criteria rubric is one pass *inside* that pipeline, not the product. Verdicts are **KILL / MAJOR / MINOR / PASS**. KILL or MAJOR cannot ship as A. This is the "is it used honestly?" layer the engine can't do alone.
 
 You can use either on its own. Together they cover citation *existence* (deterministic) and citation *honesty* (appraisal).
+
+## How the skill verifies
+
+The engine answers existence. The skill answers honesty. It does not start by scoring 15 boxes.
+
+**Claim ledger first.** Extract every testable claim and its attached citation *before* any lookup. Headlines count. See [`templates/claim-ledger.md`](skills/medical-fact-check/templates/claim-ledger.md).
+
+**Four named loops** (each has a stop condition — full rules in [`skills/medical-fact-check/references/verification-workflow.md`](skills/medical-fact-check/references/verification-workflow.md)):
+
+1. **Engine** — `evidentia check`. Retry once if unreachable; then mark `unresolved`, never a guessed Hallucination. Engine output is ground truth for existence. Never override T4 to "probably real."
+2. **Semantic** — one extra abstract lookup per **Tier 1** cite. Does the claim match primary outcome, population, direction of effect? Do **not** use this loop to upgrade a T3 or T4.
+3. **Adversarial** — five lenses + a 10-line checklist. Verdict: **KILL / MAJOR / MINOR / PASS**. Max 3 passes. Re-enter from the engine, not from scoring.
+4. **Correction** — if the author revises, re-run engine → semantic → adversarial. Cap 3, then stop and report what is still open.
+
+**KILL or MAJOR cannot ship as A.** A **KILL** (any T4 presented as real, or advice that could cause harm if followed) forces overall score ≤ D — **F** if fabrication. That is the system working, not a failure of the tool.
+
+Worked example: [vitamin D — claim ledger → engine → semantic → KILL](examples/case-studies/vitamin-d-adversarial.md) on the committed four-citation demo.
+
+```mermaid
+flowchart TD
+  A[Acquire content] --> B[Extract claim ledger]
+  B --> C[Run evidentia engine]
+  C --> D[Semantic honesty check]
+  D --> E[15-criteria appraisal]
+  E --> F[Adversarial red-team]
+  F --> G[Score plus report]
+  G --> H{User revises?}
+  H -->|yes: max 3| C
+  H -->|no or cap| I[Stop]
+```
+
+<details>
+<summary><b>The 15 criteria</b> (one pass inside the pipeline, not the product)</summary>
+
+1. Evidence level & study design
+2. Citation & source accuracy *(powered by the engine above)*
+3. Statistical interpretation
+4. Causation vs. correlation
+5. Bias & conflicts of interest
+6. Exaggeration & overclaiming
+7. Target population fit
+8. Temporal validity
+9. Jargon–readability balance
+10. Ethical considerations
+11. Logical consistency
+12. Images & figures
+13. Alternative explanations
+14. Clinical relevance
+15. Information completeness
+
+Each item is rated **Excellent / Good / Fair / Poor**, aggregated into an overall **A–F** score with a **public-health risk level** (LOW / MEDIUM / HIGH) — then gated by the adversarial verdict. See [`skills/medical-fact-check/SKILL.md`](skills/medical-fact-check/SKILL.md).
+</details>
 
 ## Use it as an MCP tool
 
@@ -123,32 +175,6 @@ Block a pull request that introduces a fabricated citation. Drop [`.github/workf
 ```
 
 `--fail-on-fabrication` exits non-zero if any citation is a mismatch or hallucination.
-
-## The 15-criteria skill (Claude Code)
-
-When invoked as a skill, Evidentia evaluates medical content across 15 dimensions and adapts to the media type — research paper, news article, social post, patient leaflet, conference slide, guideline, pharma marketing, or AI-generated text.
-
-<details>
-<summary><b>The 15 criteria</b></summary>
-
-1. Evidence level & study design
-2. Citation & source accuracy *(powered by the engine above)*
-3. Statistical interpretation
-4. Causation vs. correlation
-5. Bias & conflicts of interest
-6. Exaggeration & overclaiming
-7. Target population fit
-8. Temporal validity
-9. Jargon–readability balance
-10. Ethical considerations
-11. Logical consistency
-12. Images & figures
-13. Alternative explanations
-14. Clinical relevance
-15. Information completeness
-
-Each item is rated **Excellent / Good / Fair / Poor**, aggregated into an overall **A–F** score with a **public-health risk level** (LOW / MEDIUM / HIGH). See [`skills/medical-fact-check/SKILL.md`](skills/medical-fact-check/SKILL.md).
-</details>
 
 ## Works with your agent
 
@@ -223,6 +249,7 @@ All registries are free and keyless. Pass `--mailto` to join the faster "polite 
 | Input | Result |
 |-------|--------|
 | [AI-generated answer](examples/inputs/ai-generated-answer.md) (real + fabricated mix) | [75% fabrication rate](examples/reports/ai-generated-answer.report.md) |
+| [Vitamin D adversarial walkthrough](examples/case-studies/vitamin-d-adversarial.md) (skill pipeline on the same file) | **KILL**, score **F** — two T4 presented as real |
 | [Clean reference list](examples/inputs/clean-references.md) (all real) | [0% — all verified](examples/reports/clean-references.report.md) |
 
 ## Limitations

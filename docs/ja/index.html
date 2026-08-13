@@ -18,6 +18,7 @@
 <nav class="site-nav" aria-label="サイト"><a href="#feel">デモ</a>
 <a href="#tiers">4段階</a>
 <a href="#layers">2層</a>
+<a href="#verify">検証</a>
 <a href="#start">導入</a>
 <a href="../" hreflang="en">English</a></nav>
 <a class="btn btn-ghost star-btn" href="https://github.com/kgraph57/evidentia" rel="noopener">★ GitHubでStar</a></div></header>
@@ -50,10 +51,26 @@
 <div class="layer-grid"><article class="layer-card"><span class="layer-kicker">エンジン · CLI + MCP</span>
 <h3>この論文は実在するか</h3>
 <p>純粋なレジストリ照合。DOI / PMID / arXiv / NCT を CrossRef、PubMed、OpenAlex、arXiv、ClinicalTrials.gov へ。APIキー不要、LLMなし、エンジン自身はハルシネーションしない。</p>
-<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">スキル · 15項目</span>
+<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">スキル · 4ループ</span>
 <h3>正しく使われているか</h3>
-<p>エンジンを15項目の評価ルーブリックで包む。エビデンスレベル、統計、因果と相関、利益相反、誇張、対象集団、倫理 — A–F のレポートと具体的な直し方。エンジンだけではできない Tier 2 の層。</p>
+<p>まず主張台帳。つづいてエンジン、意味、敵対、修正の4ループ。15項目はその中の一工程。KILL または MAJOR は A では出せない。</p>
 <p><code>npx skills add kgraph57/evidentia</code></p></article></div></div></section>
+<section id="verify" aria-label="スキルの検証の仕方"><div class="wrap"><span class="kicker">スキルの検証の仕方</span>
+<h2>まず主張台帳。ループは4つ。KILL は仕様。</h2>
+<p class="section-lede">15項目のルーブリックはパイプラインの中の一工程であって、商品そのものではない。存在はエンジン、誠実さはスキル。実在として出した捏造DOIは <strong>KILL</strong> — 総合 ≤ D、捏造なら F。それが故障ではなく、仕組みが動いているということ。</p>
+<div class="loop-grid"><article class="loop-card"><span class="loop-kicker">01 · エンジン</span>
+<h3>実在するか</h3>
+<p>レジストリ照合。届かなければ1回だけ再試行。それでもダメなら unresolved。推測のハルシネーションは付けない。</p></article>
+<article class="loop-card"><span class="loop-kicker">02 · 意味</span>
+<h3>実在論文を誠実に使っているか</h3>
+<p>Tier 1 だけ、抄録を1回余分に取る。主要アウトカム、対象集団、効果の向き。T3 や T4 は格上げしない。</p></article>
+<article class="loop-card loop-kill"><span class="loop-kicker">03 · 敵対</span>
+<h3>KILL は仕様</h3>
+<p>レンズは5つ。KILL / MAJOR / MINOR / PASS。KILL または MAJOR は A では出せない。最大3パス。</p></article>
+<article class="loop-card"><span class="loop-kicker">04 · 修正</span>
+<h3>直したら、エンジンから入り直す</h3>
+<p>上限3回。その後は止まって残件を書く。T4 が残っているあいだは評点を上げない。</p></article></div>
+<p class="verify-case">実例: <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">ビタミンD — 主張台帳 → エンジン → 意味 → KILL</a>。</p></div></section>
 <section id="start" aria-label="導入"><div class="wrap"><span class="kicker">60秒スタート</span>
 <h2>入り方は3つ。まず CLI。</h2>
 <p class="section-lede">APIキー不要。MIT。書き方に合う経路を選ぶ。</p>
@@ -70,5 +87,5 @@
 <hr class="ft-divider">
 <div class="ft-small"><p>MIT License · Evidentia v1.1.0 · Copyright (c) 2026 Ken Okamoto, MD</p>
 <p>臨床判断支援ではありません。診断・治療・医療専門家の判断を代替しません。</p>
-<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">registry</a></li><li><a href="../" hreflang="en">English</a></li></ul></div></div></footer>
+<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">npm</a></li><li><a href="../" hreflang="en">English</a></li></ul></div></div></footer>
 <script src="../site/js/main.js" defer=""></script></body></html>

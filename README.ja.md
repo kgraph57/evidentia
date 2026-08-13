@@ -4,7 +4,7 @@
 
 ### AIが捏造した医学引用を、公開前に捕まえる。
 
-Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov** に照合し、4段階で分類します。さらにエージェントスキルでは、15項目のエビデンス評価を重ねて A〜F のレポートを生成します。作者は小児科専門医。
+Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov** に照合し、4段階で分類します。エージェントスキルはまず **主張台帳** を作り、エンジン / 意味 / 敵対 / 修正の4つのループを回してから A〜F を出します。作者は小児科専門医。
 
 **サイト:** [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
 
@@ -36,7 +36,7 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 npx evidentia check your-article.md
 ```
 
-**エージェントスキルとして**（15項目の完全評価。`SKILL.md` が `skills/medical-fact-check/SKILL.md` にあるので動きます）:
+**エージェントスキルとして**（主張台帳 + 4つの検証ループ。`SKILL.md` が `skills/medical-fact-check/SKILL.md` にあるので動きます）:
 
 ```bash
 npx skills add kgraph57/evidentia
@@ -72,7 +72,7 @@ Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrica
   [MIS] doi:10.1002/14651858.cd012734 — 論文は実在するが、メタデータ（年）が不一致
 ```
 
-実在は1件。1件はDOIをでっち上げ。1件のPMIDは無関係な論文を指し、1件は年が誤り。**人間のレビュアーなら4件すべてを手で確認する必要があります。** Evidentia は数秒で終えました。
+実在は1件。1件はDOIをでっち上げ。1件のPMIDは無関係な論文を指し、1件は年が誤り。**人間のレビュアーなら4件すべてを手で確認する必要があります。** Evidentia は数秒で終えました。[エンジンの全文レポート](examples/reports/ai-generated-answer.report.md)。同じファイルをスキルのパイプライン（主張台帳 → 意味チェック → 敵対レビューで **KILL**）で歩いたものが [examples/case-studies/vitamin-d-adversarial.md](examples/case-studies/vitamin-d-adversarial.md) です。
 
 ## 4段階分類
 
@@ -91,9 +91,61 @@ Evidentia は「機械が完璧にできる部分」と「判断を要する部�
 
 **1. エンジン（CLI + MCPサーバー）** — 純粋に決定論的な引用検証。APIキー不要、LLM不要、それ自身がハルシネーションを起こすこともありません。「この引用論文は本当に実在し、識別子はそれを指しているか?」という1点を確実に答えます。ターミナル、CI、または任意のエージェントの MCP ツールとして使えます。
 
-**2. スキル（Claude Code）** — エンジンを **15項目の批判的評価ルーブリック** で包みます。エビデンスレベル、統計解釈（相対リスク vs 絶対リスク、NNT）、因果と相関、利益相反、誇張、対象集団の適合、倫理など — **A〜F のレポート** と具体的な修正案を生成。これはエンジン単独ではできない Tier 2「正しく使われているか」の層です。
+**2. スキル（Claude Code）** — エンジンを **主張台帳** と4つの名前付きループで包みます。エンジン、意味の誠実さ、敵対レビュー、修正（上限3回）。15項目のルーブリックはそのパイプラインの *中の一工程* であって、商品そのものではありません。判定は **KILL / MAJOR / MINOR / PASS**。KILL または MAJOR は A では出せません。エンジンだけではできない「正しく使われているか」の層です。
 
 どちらも単独で使えます。組み合わせれば、引用の *存在*（決定論的）と引用の *誠実さ*（評価）の両方をカバーします。
+
+## スキルはどう検証するか
+
+エンジンは「実在するか」に答える。スキルは「誠実に使っているか」に答える。最初に15個の箱を埋める作業ではない。
+
+**まず主張台帳。** 照合の前に、検証できる主張とその引用を全部抜き出す。見出しも主張のうち。書式は [`templates/claim-ledger.md`](skills/medical-fact-check/templates/claim-ledger.md)。
+
+**名前の付いたループは4つ**（それぞれ打ち切り条件あり。詳細は [`skills/medical-fact-check/references/verification-workflow.md`](skills/medical-fact-check/references/verification-workflow.md)）:
+
+1. **エンジン** — `evidentia check`。届かなければ1回だけ再試行。それでもダメなら `unresolved`。推測のハルシネーションは付けない。存在についてのエンジン出力が正本。T4 を「たぶん実在」に書き換えない。
+2. **意味** — **Tier 1** の引用だけ、抄録を1回余分に取る。主張は主要アウトカム・対象集団・効果の向きと合うか。T3 や T4 をこのループで格上げしない。
+3. **敵対** — 5つのレンズと10行のチェックリスト。判定は **KILL / MAJOR / MINOR / PASS**。最大3パス。直したら採点からではなくエンジンから入り直す。
+4. **修正** — 著者が直したら、エンジン → 意味 → 敵対を再実行。上限3回。その後は止まって、残件を書く。
+
+**KILL または MAJOR は A では出せない。** **KILL**（実在として出した T4、または従うと害が出る助言）は総合 ≤ D。捏造なら **F**。それが故障ではなく、仕組みが動いているということ。
+
+実例: [ビタミンD — 主張台帳 → エンジン → 意味 → KILL](examples/case-studies/vitamin-d-adversarial.md)。収録してある引用4件のデモを、スキルのパイプラインで歩いたもの。
+
+```mermaid
+flowchart TD
+  A[原稿を取る] --> B[主張台帳を作る]
+  B --> C[エンジンを回す]
+  C --> D[意味の誠実さ]
+  D --> E[15項目評価]
+  E --> F[敵対レビュー]
+  F --> G[スコアとレポート]
+  G --> H{直す?}
+  H -->|はい・最大3回| C
+  H -->|いいえ / 上限| I[止める]
+```
+
+<details>
+<summary><b>15の評価項目</b>（パイプラインの中の一工程であって、商品ではない）</summary>
+
+1. エビデンスレベルと研究デザイン
+2. 引用・出典の正確さ *(上記エンジンが担当)*
+3. 統計解釈
+4. 因果と相関
+5. バイアスと利益相反
+6. 誇張・過大主張
+7. 対象集団への適合
+8. 時間的妥当性
+9. 専門用語と読みやすさのバランス
+10. 倫理的配慮
+11. 論理的整合性
+12. 図表
+13. 代替説明
+14. 臨床的妥当性
+15. 情報の完全性
+
+各項目を **Excellent / Good / Fair / Poor** で評価し、総合 **A〜F** と **公衆衛生リスク**（LOW / MEDIUM / HIGH）にまとめたうえで、敵対判定でゲートする。詳細は [`skills/medical-fact-check/SKILL.md`](skills/medical-fact-check/SKILL.md)。
+</details>
 
 ## MCPツールとして使う
 
@@ -114,32 +166,6 @@ JSON出力には、人間向けの4段階判定に加えて `lookupVerified` と
 ```
 
 `--fail-on-fabrication` は、いずれかの引用が不一致・ハルシネーションなら非ゼロ終了します。
-
-## 15項目の評価スキル（Claude Code）
-
-スキルとして呼び出すと、Evidentia は医学コンテンツを15の観点で評価し、メディアの種類（研究論文・ニュース記事・SNS投稿・患者向けリーフレット・学会スライド・診療ガイドライン・製薬マーケティング・AI生成テキスト）に応じて評価軸を調整します。
-
-<details>
-<summary><b>15の評価項目</b></summary>
-
-1. エビデンスレベルと研究デザイン
-2. 引用・出典の正確さ *(上記エンジンが担当)*
-3. 統計解釈
-4. 因果と相関
-5. バイアスと利益相反
-6. 誇張・過大主張
-7. 対象集団への適合
-8. 時間的妥当性
-9. 専門用語と読みやすさのバランス
-10. 倫理的配慮
-11. 論理的整合性
-12. 図表
-13. 代替説明
-14. 臨床的妥当性
-15. 情報の完全性
-
-各項目を **Excellent / Good / Fair / Poor** で評価し、総合 **A〜F** スコアと **公衆衛生リスクレベル**（LOW / MEDIUM / HIGH）に集約します。詳細は [`skills/medical-fact-check/SKILL.md`](skills/medical-fact-check/SKILL.md)。
-</details>
 
 ## エージェントから使う
 
@@ -212,6 +238,7 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 | 入力 | 結果 |
 |------|------|
 | [AI生成回答](examples/inputs/ai-generated-answer.md)（実在＋捏造の混在） | [捏造率75%](examples/reports/ai-generated-answer.report.md) |
+| [ビタミンDの敵対レビュー実例](examples/case-studies/vitamin-d-adversarial.md)（同じファイルをスキルのパイプラインで） | **KILL**、スコア **F** — 実在として出した T4 が2件 |
 | [クリーンな参考文献リスト](examples/inputs/clean-references.md)（全て実在） | [0%（全件検証済み）](examples/reports/clean-references.report.md) |
 
 ## ロードマップ
