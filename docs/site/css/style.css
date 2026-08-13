@@ -126,7 +126,7 @@ code { font-size: 0.875em; }
 .gates {
   list-style: none;
   margin: 0;
-  padding: 0 56px 0 0;
+  padding: 0 8px 0 0;
   position: relative;
 }
 
@@ -143,7 +143,7 @@ code { font-size: 0.875em; }
 .gates > li {
   display: grid;
   grid-template-columns: 32px 1fr;
-  gap: 16px;
+  gap: 48px;
   position: relative;
   padding: 0 0 28px;
 }
@@ -231,32 +231,7 @@ code { font-size: 0.875em; }
 /* right-hand loop 5 → 2 */
 .loop-a::after,
 .loop-m::after,
-.loop-z::after {
-  content: "";
-  position: absolute;
-  right: -48px;
-  width: 40px;
-  box-sizing: border-box;
-  border-right: 1px solid var(--ink);
-  pointer-events: none;
-}
-
-.loop-a::after {
-  top: 16px;
-  bottom: 0;
-  border-top: 1px solid var(--ink);
-}
-
-.loop-m::after {
-  top: 0;
-  bottom: 0;
-}
-
-.loop-z::after {
-  top: 0;
-  height: 16px;
-  border-bottom: 1px solid var(--ink);
-}
+.loop-z::after { content: none; }
 
 .reenter {
   margin: 10px 0 0;
@@ -268,10 +243,7 @@ code { font-size: 0.875em; }
 .reenter .arrow { color: var(--mute); }
 
 @media (max-width: 720px) {
-  .gates { padding-right: 0; }
-  .loop-a::after,
-  .loop-m::after,
-  .loop-z::after { display: none; }
+  .gates > li { gap: 40px; }
 }
 
 /* Record rows: 1px lines, no cards, no shadows */
@@ -496,7 +468,7 @@ code { font-size: 0.875em; }
 }
 
 .js .gates > li {
-  opacity: 0.22;
+  opacity: 0.55;
   transform: translateY(14px);
   transition: opacity 0.55s ease, transform 0.55s ease;
 }
@@ -519,23 +491,6 @@ code { font-size: 0.875em; }
 .js .gates > li.is-on .n-src {
   background: var(--ink);
 }
-
-.js .loop-a::after,
-.js .loop-m::after,
-.js .loop-z::after {
-  opacity: 0;
-  transform: scaleY(0.08);
-  transform-origin: top;
-  transition: opacity 0.5s ease, transform 0.7s ease;
-}
-
-.js .gates.is-loop .loop-a::after,
-.js .gates.is-loop .loop-m::after,
-.js .gates.is-loop .loop-z::after {
-  opacity: 1;
-  transform: none;
-}
-
 .js .reenter {
   opacity: 0;
   transform: translateX(8px);
@@ -558,7 +513,7 @@ code { font-size: 0.875em; }
 }
 
 .js .block {
-  opacity: 0.28;
+  opacity: 0.7;
   transform: translateY(18px);
   transition: opacity 0.65s ease, transform 0.65s ease;
 }
@@ -583,10 +538,7 @@ code { font-size: 0.875em; }
   .js .gates > li,
   .js .block,
   .js .ident,
-  .js .reenter,
-  .js .loop-a::after,
-  .js .loop-m::after,
-  .js .loop-z::after {
+  .js .reenter {
     opacity: 1;
     transform: none;
     animation: none;
@@ -596,6 +548,7 @@ code { font-size: 0.875em; }
 }
 
 
+
 .loop-svg {
   position: absolute;
   inset: 0;
@@ -603,49 +556,29 @@ code { font-size: 0.875em; }
   height: 100%;
   overflow: visible;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 .loop-track {
   fill: none;
-  stroke: var(--line);
-  stroke-width: 1;
-}
-
-.loop-run {
-  fill: none;
   stroke: var(--ink);
-  stroke-width: 1.75;
-  stroke-linecap: square;
-  stroke-dashoffset: 0;
+  stroke-width: 1.5;
+  opacity: 0.55;
 }
 
-.js .gates.is-loop .loop-run {
-  animation: loop-travel 1.7s linear 3 forwards;
+.loop-token {
+  fill: var(--ink);
+  stroke: var(--bg);
+  stroke-width: 2;
 }
 
-@keyframes loop-travel {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: calc(-1 * var(--len, 800)); }
-}
-
-.js .gates.is-loop .loop-a::after,
-.js .gates.is-loop .loop-m::after,
-.js .gates.is-loop .loop-z::after {
-  display: none;
-}
-
-.js .gates.is-loop-done .loop-run {
-  stroke-dasharray: none;
-  animation: none;
-  stroke: var(--ink);
-  opacity: 0.35;
+.js .gates > li.is-now .n:not(.n-src) {
+  background: var(--kill);
+  border-color: var(--kill);
+  color: var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .js .gates.is-loop .loop-run {
-    animation: none;
-    stroke-dasharray: none;
-    opacity: 0.7;
-  }
+  .loop-token { display: none; }
+  .loop-track { opacity: 1; }
 }
