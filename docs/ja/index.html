@@ -12,7 +12,9 @@
     <meta property="og:description" content="品質は採点表ではなく、ゲート付きのループで担保する。存在はエンジン。誠実さはスキル。" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kgraph57.github.io/evidentia/ja/" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://kgraph57.github.io/evidentia/og.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://kgraph57.github.io/evidentia/og.svg" />
     <link rel="stylesheet" href="../site/css/tokens.css" />
     <link rel="stylesheet" href="../site/css/style.css" />
   </head>
@@ -21,7 +23,8 @@
     <header class="mast">
       <div class="wrap mast-inner">
         <a class="wordmark" href="./">Evidentia</a>
-        <nav class="mast-nav" aria-label="言語">
+        <nav class="mast-nav" aria-label="サイト">
+          <a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a>
           <a href="../" hreflang="en">EN</a>
           <a href="./" hreflang="ja" aria-current="page">日本語</a>
         </nav>
@@ -57,7 +60,7 @@
                 </dl>
               </div>
             </li>
-            <li class="loop-a" id="engine">
+            <li class="loop-a" id="engine-gate">
               <span class="n" aria-hidden="true">2</span>
               <div class="g">
                 <h3>エンジン <span class="aka">Engine</span></h3>
@@ -141,8 +144,177 @@
           </ol>
         </section>
 
+        <section class="block" id="engine" aria-labelledby="sec-engine">
+          <h2 class="sec" id="sec-engine">engine</h2>
+          <div class="rec-wrap">
+            <table class="rec">
+              <thead>
+                <tr>
+                  <th scope="col">階層</th>
+                  <th scope="col">名称</th>
+                  <th scope="col">意味</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="code ok">T1</td>
+                  <td class="name">検証済み</td>
+                  <td>論文が存在し、メタデータが一致する。</td>
+                </tr>
+                <tr>
+                  <td class="code">T2</td>
+                  <td class="name">内容確認が必要</td>
+                  <td>未索引（ISBN / ガイドライン / タイトルのみ）、または実在論文の意味的誤用。幻覚にはしない。</td>
+                </tr>
+                <tr>
+                  <td class="code">T3</td>
+                  <td class="name">書誌不一致</td>
+                  <td>論文は存在するが、識別子またはメタデータが食い違う。</td>
+                </tr>
+                <tr>
+                  <td class="code hal">T4</td>
+                  <td class="name">幻覚</td>
+                  <td>識別子が何にも解決しない、または別の論文に解決する。存在の事実であり、LLM が上書きしてはならない。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="block" id="adversarial" aria-labelledby="sec-adversarial">
+          <h2 class="sec" id="sec-adversarial">adversarial</h2>
+          <dl class="lenses">
+            <div>
+              <dt>引用の誠実さ</dt>
+              <dd>実在として出した T4 は <span class="kill">KILL</span>。</dd>
+            </div>
+            <div>
+              <dt>主張の裏付け</dt>
+              <dd>実在論文でも、主張が違う（主要評価項目 / 対象集団 / 効果の向き）。</dd>
+            </div>
+            <div>
+              <dt>統計と表現</dt>
+              <dd>ARR なしの RRR、観察研究から「引き起こす」、「奇跡」。</dd>
+            </div>
+            <div>
+              <dt>危害</dt>
+              <dd>本文どおりに従うと危害がありうるなら、引用がすべて T1 でも <span class="kill">KILL</span>。</dd>
+            </div>
+            <div>
+              <dt>スティールマン、それから攻撃</dt>
+              <dd>スティールマンが攻撃に耐えなければ、PASS にはできない。</dd>
+            </div>
+          </dl>
+          <div class="rec-wrap">
+            <table class="rec verdict">
+              <thead>
+                <tr>
+                  <th scope="col">判定</th>
+                  <th scope="col">意味</th>
+                  <th scope="col">評点</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="name kill">KILL</td>
+                  <td>実在として出した T4、または危害。このまま公開してはならない。</td>
+                  <td>≤ D。捏造なら F</td>
+                </tr>
+                <tr>
+                  <td class="name">MAJOR</td>
+                  <td>実在資料の不誠実な使い方。</td>
+                  <td>A にできない</td>
+                </tr>
+                <tr>
+                  <td class="name">MINOR</td>
+                  <td>留保 / 鮮度 / 体裁。</td>
+                  <td>稼いだ評点</td>
+                </tr>
+                <tr>
+                  <td class="name">PASS</td>
+                  <td>但し書き付きで出荷。公開の責任は人間。</td>
+                  <td>稼いだ評点</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="block" id="criteria" aria-labelledby="sec-criteria">
+          <h2 class="sec" id="sec-criteria">criteria</h2>
+          <p class="intro">文章の評価であり、治療の推奨ではない。評点の文字は敵対レビューでゲートされ、15項目の平均ではない。</p>
+          <ul class="names">
+            <li>証拠レベル</li>
+            <li>引用の正確さ</li>
+            <li>統計</li>
+            <li>因果</li>
+            <li>バイアス / COI</li>
+            <li>誇張</li>
+            <li>対象集団</li>
+            <li>時間的妥当性</li>
+            <li>読みやすさ</li>
+            <li>倫理</li>
+            <li>論理</li>
+            <li>図表</li>
+            <li>代替説明</li>
+            <li>臨床的関連</li>
+            <li>完全性</li>
+          </ul>
+        </section>
+
         <section class="block" id="run" aria-labelledby="sec-run">
           <h2 class="sec" id="sec-run">run</h2>
+          <div class="rec-wrap">
+            <table class="rec ledger">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">主張</th>
+                  <th scope="col">id</th>
+                  <th scope="col">engine</th>
+                  <th scope="col">注</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>小児ARTIの枠</td>
+                  <td class="id">none</td>
+                  <td>n/a</td>
+                  <td>成人/混合IPDを小児として提示</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Martineau IPD、欠乏でARTI減</td>
+                  <td class="id">doi:10.1136/bmj.i6583</td>
+                  <td class="code ok">T1</td>
+                  <td>ARTIは支持。対象集団のチェリーピック</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>学童1,200人、A型47%減</td>
+                  <td class="id">doi:10.1056/nejmoa2105512</td>
+                  <td class="code hal">T4</td>
+                  <td>実在として提示 → <span class="kill">KILL</span></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>気道のカテリシジン</td>
+                  <td class="id">pmid:18768876</td>
+                  <td class="code hal">T4</td>
+                  <td>別論文 → <span class="kill">KILL</span></td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>2019 Cochrane、充足小児</td>
+                  <td class="id">doi:10.1002/14651858.cd012734</td>
+                  <td class="code">T3</td>
+                  <td>肝硬変の Cochrane。T3のまま</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="out">敵対 <span class="kill">KILL</span>、評点 <strong>F</strong>。<a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">ケーススタディ</a>。</p>
           <div class="cli-wrap">
             <pre class="cli" id="cli-demo">$ npx evidentia check examples/inputs/ai-generated-answer.md
 
@@ -153,17 +325,14 @@ Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrica
                                        CD8+ T lymphocytes…") than the one cited.
   [MIS] doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).</pre>
           </div>
-          <p class="case">
-            収録済みの実行。ビタミンDと小児感染症。引用4件、実在は1件。Cochrane の DOI は T3 のまま（T4 に上げていない）。
-            <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">ケーススタディ: 主張台帳 → エンジン → 意味 → KILL</a>。
-          </p>
         </section>
         <section class="block" id="install" aria-labelledby="sec-install">
           <h2 class="sec" id="sec-install">install</h2>
           <div class="install">
             <button type="button" class="copy" data-copy="#install-block" data-idle="コピー" data-done="コピーした">コピー</button>
             <pre id="install-block">npx evidentia check your-article.md
-npx skills add kgraph57/evidentia</pre>
+npx skills add kgraph57/evidentia
+<span class="mcp">claude mcp add evidentia -- npx -y evidentia-mcp</span></pre>
           </div>
         </section>
         <aside class="note measure" id="note">

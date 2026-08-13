@@ -12,7 +12,9 @@
     <meta property="og:description" content="Quality is a gated loop, not a rubric. Existence is the engine. Honesty is the skill." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kgraph57.github.io/evidentia/" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://kgraph57.github.io/evidentia/og.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://kgraph57.github.io/evidentia/og.svg" />
     <link rel="stylesheet" href="./site/css/tokens.css" />
     <link rel="stylesheet" href="./site/css/style.css" />
   </head>
@@ -21,7 +23,8 @@
     <header class="mast">
       <div class="wrap mast-inner">
         <a class="wordmark" href="./">Evidentia</a>
-        <nav class="mast-nav" aria-label="Language">
+        <nav class="mast-nav" aria-label="Site">
+          <a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a>
           <a href="./" hreflang="en" aria-current="page">EN</a>
           <a href="./ja/" hreflang="ja">日本語</a>
         </nav>
@@ -57,7 +60,7 @@
                 </dl>
               </div>
             </li>
-            <li class="loop-a" id="engine">
+            <li class="loop-a" id="engine-gate">
               <span class="n" aria-hidden="true">2</span>
               <div class="g">
                 <h3>Engine</h3>
@@ -141,8 +144,177 @@
           </ol>
         </section>
 
+        <section class="block" id="engine" aria-labelledby="sec-engine">
+          <h2 class="sec" id="sec-engine">engine</h2>
+          <div class="rec-wrap">
+            <table class="rec">
+              <thead>
+                <tr>
+                  <th scope="col">Tier</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="code ok">T1</td>
+                  <td class="name">Verified</td>
+                  <td>Paper exists, metadata matches.</td>
+                </tr>
+                <tr>
+                  <td class="code">T2</td>
+                  <td class="name">Content review needed</td>
+                  <td>Unindexed (ISBN / guideline / title-only) or semantic misuse of a real paper. Never Hallucination.</td>
+                </tr>
+                <tr>
+                  <td class="code">T3</td>
+                  <td class="name">Bibliographic mismatch</td>
+                  <td>Paper exists, identifier or metadata disagrees.</td>
+                </tr>
+                <tr>
+                  <td class="code hal">T4</td>
+                  <td class="name">Hallucination</td>
+                  <td>Identifier resolves to nothing, or to a different paper. Ground truth; LLM must not override.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="block" id="adversarial" aria-labelledby="sec-adversarial">
+          <h2 class="sec" id="sec-adversarial">adversarial</h2>
+          <dl class="lenses">
+            <div>
+              <dt>Citation integrity</dt>
+              <dd>T4 presented as real is <span class="kill">KILL</span>.</dd>
+            </div>
+            <div>
+              <dt>Claim support</dt>
+              <dd>Real paper, wrong claim (primary / population / direction).</dd>
+            </div>
+            <div>
+              <dt>Statistics and language</dt>
+              <dd>RRR without ARR, “causes” from observational, “miracle”.</dd>
+            </div>
+            <div>
+              <dt>Harm</dt>
+              <dd>If following the text could cause harm, <span class="kill">KILL</span> even when every cite is T1.</dd>
+            </div>
+            <div>
+              <dt>Steelman, then attack</dt>
+              <dd>If the steelman cannot survive, cannot be PASS.</dd>
+            </div>
+          </dl>
+          <div class="rec-wrap">
+            <table class="rec verdict">
+              <thead>
+                <tr>
+                  <th scope="col">Verdict</th>
+                  <th scope="col">Meaning</th>
+                  <th scope="col">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="name kill">KILL</td>
+                  <td>T4 as real, or harm. Must not publish as-is.</td>
+                  <td>≤ D; F if fabrication</td>
+                </tr>
+                <tr>
+                  <td class="name">MAJOR</td>
+                  <td>Real sources, dishonest use.</td>
+                  <td>cannot be A</td>
+                </tr>
+                <tr>
+                  <td class="name">MINOR</td>
+                  <td>Hedging / currency / formatting.</td>
+                  <td>grade as earned</td>
+                </tr>
+                <tr>
+                  <td class="name">PASS</td>
+                  <td>Ship with caveats; human owns publish.</td>
+                  <td>grade as earned</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="block" id="criteria" aria-labelledby="sec-criteria">
+          <h2 class="sec" id="sec-criteria">criteria</h2>
+          <p class="intro">Appraisal of the <em>content</em>, not a treatment recommendation. The letter is gated by adversarial review, not averaged from 15 boxes.</p>
+          <ul class="names">
+            <li>Evidence level</li>
+            <li>Citation accuracy</li>
+            <li>Statistics</li>
+            <li>Causation</li>
+            <li>Bias / COI</li>
+            <li>Overclaiming</li>
+            <li>Population fit</li>
+            <li>Temporal validity</li>
+            <li>Readability</li>
+            <li>Ethics</li>
+            <li>Logic</li>
+            <li>Images</li>
+            <li>Alternatives</li>
+            <li>Clinical relevance</li>
+            <li>Completeness</li>
+          </ul>
+        </section>
+
         <section class="block" id="run" aria-labelledby="sec-run">
           <h2 class="sec" id="sec-run">run</h2>
+          <div class="rec-wrap">
+            <table class="rec ledger">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">claim</th>
+                  <th scope="col">id</th>
+                  <th scope="col">engine</th>
+                  <th scope="col">note</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>pediatric ARTI frame</td>
+                  <td class="id">none</td>
+                  <td>n/a</td>
+                  <td>adult/mixed IPD sold as pediatric</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Martineau IPD ARTI, strongest in deficient</td>
+                  <td class="id">doi:10.1136/bmj.i6583</td>
+                  <td class="code ok">T1</td>
+                  <td>supports ARTI; cherry-pick on population</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>1,200 schoolchildren, 47% influenza A</td>
+                  <td class="id">doi:10.1056/nejmoa2105512</td>
+                  <td class="code hal">T4</td>
+                  <td>presented as real → <span class="kill">KILL</span></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>cathelicidin in airway</td>
+                  <td class="id">pmid:18768876</td>
+                  <td class="code hal">T4</td>
+                  <td>different paper → <span class="kill">KILL</span></td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>2019 Cochrane, replete children</td>
+                  <td class="id">doi:10.1002/14651858.cd012734</td>
+                  <td class="code">T3</td>
+                  <td>cirrhosis Cochrane, keep T3</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="out">Adversarial <span class="kill">KILL</span>, score <strong>F</strong>. <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">Worked ledger</a>.</p>
           <div class="cli-wrap">
             <pre class="cli" id="cli-demo">$ npx evidentia check examples/inputs/ai-generated-answer.md
 
@@ -153,17 +325,14 @@ Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrica
                                        CD8+ T lymphocytes…") than the one cited.
   [MIS] doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).</pre>
           </div>
-          <p class="case">
-            Committed vitamin D run. Four citations; one real. The Cochrane DOI stays T3.
-            <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">Case study: claim ledger → engine → semantic → KILL</a>.
-          </p>
         </section>
         <section class="block" id="install" aria-labelledby="sec-install">
           <h2 class="sec" id="sec-install">install</h2>
           <div class="install">
             <button type="button" class="copy" data-copy="#install-block" data-idle="Copy" data-done="Copied">Copy</button>
             <pre id="install-block">npx evidentia check your-article.md
-npx skills add kgraph57/evidentia</pre>
+npx skills add kgraph57/evidentia
+<span class="mcp">claude mcp add evidentia -- npx -y evidentia-mcp</span></pre>
           </div>
         </section>
         <aside class="note measure" id="note">
