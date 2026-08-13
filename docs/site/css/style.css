@@ -481,6 +481,117 @@ code { font-size: 0.875em; }
   }
 }
 
+
+
+/* Scroll: the protocol draws itself. No scroll-jack. */
+.rail-ink {
+  position: absolute;
+  left: 15px;
+  top: 10px;
+  width: 1px;
+  height: 0;
+  background: var(--ink);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.js .gates > li {
+  opacity: 0.22;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.js .gates > li.is-on {
+  opacity: 1;
+  transform: none;
+}
+
+.js .n {
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+.js .gates > li.is-on .n:not(.n-src) {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.js .gates > li.is-on .n-src {
+  background: var(--ink);
+}
+
+.js .loop-a::after,
+.js .loop-m::after,
+.js .loop-z::after {
+  opacity: 0;
+  transform: scaleY(0.08);
+  transform-origin: top;
+  transition: opacity 0.5s ease, transform 0.7s ease;
+}
+
+.js .gates.is-loop .loop-a::after,
+.js .gates.is-loop .loop-m::after,
+.js .gates.is-loop .loop-z::after {
+  opacity: 1;
+  transform: none;
+}
+
+.js .reenter {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.45s ease 0.15s, transform 0.45s ease 0.15s;
+}
+
+.js .gates.is-loop .reenter {
+  opacity: 1;
+  transform: none;
+}
+
+.js .gates > li.is-on .kill {
+  animation: kill-flash 0.8s ease 1;
+}
+
+@keyframes kill-flash {
+  0% { color: var(--ink); }
+  40% { color: var(--kill); }
+  100% { color: var(--kill); }
+}
+
+.js .block {
+  opacity: 0.28;
+  transform: translateY(18px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.js .block.is-on {
+  opacity: 1;
+  transform: none;
+}
+
+.js .ident {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: ident-in 0.7s ease 0.08s forwards;
+}
+
+@keyframes ident-in {
+  to { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .js .gates > li,
+  .js .block,
+  .js .ident,
+  .js .reenter,
+  .js .loop-a::after,
+  .js .loop-m::after,
+  .js .loop-z::after {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+  }
+  .js .gates > li.is-on .kill { animation: none; }
 }
+
