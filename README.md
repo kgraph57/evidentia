@@ -6,6 +6,8 @@
 
 **AIが捏造した医学引用を、公開前に捕まえる。**
 
+**Site:** [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
+
 The `evidentia` command verifies every citation in a piece of medical writing against **CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov** and grades each one in a 4-tier classification. The companion agent skill adds a full 15-criteria evidence appraisal on top. Built by a board-certified pediatrician.
 
 <img src="assets/demo.svg" alt="Evidentia flagging 3 of 4 citations in an AI-generated medical answer as fabricated or mismatched" width="760">
@@ -24,7 +26,7 @@ The `evidentia` command verifies every citation in a piece of medical writing ag
 
 ---
 
-> **Why now:** A *Lancet* audit of 2.5 million biomedical papers (Topaz et al., May 2026; [doi:10.1016/S0140-6736(26)00603-3](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(26)00603-3/fulltext)) found that **1 in 277 papers published in early 2026 contained a fabricated reference** — up from 1 in 2,828 in 2023, a **12-fold rise** that tracks the spread of AI writing tools. (The audit screened the PubMed Central open-access subset.) Coverage: [STAT](https://www.statnews.com/2026/05/07/lancet-study-finds-steep-rise-fraudulent-citations-academic-papers/) · [Nature](https://www.nature.com/articles/d41586-026-00748-w) · [Columbia Nursing](https://www.nursing.columbia.edu/news/nearly-3-000-peer-reviewed-medical-papers-have-fake-citations-columbia-nursing-ai-assisted-audit-finds) · [Retraction Watch](https://retractionwatch.com/2026/05/07/one-in-277-pubmed-indexed-papers-in-2026-shows-fabricated-references-says-analysis/).
+> **Why now:** A *Lancet* audit of 2.5 million biomedical papers (Topaz et al., *Lancet* 2026;407(10541):1779–1781; [doi:10.1016/S0140-6736(26)00603-3](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(26)00603-3/fulltext)) found fabricated references in **1 in 2,828 papers in 2023**, **1 in 458 in 2025** (about sixfold), and **1 in 277 in the first 7 weeks of 2026** — about a 10-fold rise from 2023 that tracks the spread of AI writing tools. (The audit screened the PubMed Central open-access subset.) Coverage: [STAT](https://www.statnews.com/2026/05/07/lancet-study-finds-steep-rise-fraudulent-citations-academic-papers/) (7 May 2026) · [Nature](https://www.nature.com/articles/d41586-026-00748-w) · [Columbia Nursing](https://www.nursing.columbia.edu/news/nearly-3-000-peer-reviewed-medical-papers-have-fake-citations-columbia-nursing-ai-assisted-audit-finds) · [Retraction Watch](https://retractionwatch.com/2026/05/07/one-in-277-pubmed-indexed-papers-in-2026-shows-fabricated-references-says-analysis/). A Department of Error was later published ([doi:10.1016/s0140-6736(26)01339-5](https://doi.org/10.1016/s0140-6736(26)01339-5), Jul 2026); rates quoted here follow the original correspondence and STAT reporting.
 >
 > A fabricated DOI looks exactly like a real one. Evidentia is the open-source tool that resolves each one and tells you which is which.
 
@@ -32,13 +34,21 @@ The `evidentia` command verifies every citation in a piece of medical writing ag
 
 ## 30-second start
 
+Homepage: [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
+
 **As a command-line tool** (no install, no API key):
 
 ```bash
 npx evidentia check your-article.md
 ```
 
-**As a Claude Code skill** (full 15-criteria appraisal):
+**As an agent skill** (full 15-criteria appraisal; works because `SKILL.md` is at `skills/medical-fact-check/SKILL.md`):
+
+```bash
+npx skills add kgraph57/evidentia
+```
+
+**As a Claude Code plugin**:
 
 ```bash
 /plugin marketplace add kgraph57/evidentia
@@ -167,7 +177,15 @@ evidentia check <file|url|->   Verify citations in a file, web page, or stdin
   --offline                    Extraction only, no network
 ```
 
-### Claude Code skill / plugin
+### Agent skill
+
+```bash
+npx skills add kgraph57/evidentia
+```
+
+Works because `SKILL.md` is at `skills/medical-fact-check/SKILL.md`.
+
+### Claude Code plugin
 
 ```bash
 /plugin marketplace add kgraph57/evidentia
@@ -196,7 +214,7 @@ For each citation, Evidentia extracts every identifier (DOI, PMID, arXiv, **NCT 
 
 Each JSON citation also includes `lookupVerified` (`true`, `false`, or `unresolvable`) and `resolverOutcomes` (`matched`, `unmatched`, `unreachable`, or `skipped`, with whether the lookup was keyed by an identifier or a title). This keeps agent workflows auditable without changing the human-facing 4-tier verdict.
 
-It is deliberately careful about **what it does *not* flag**: a book (ISBN), a clinical guideline, or any source that isn't indexed in these registries is marked *"verify manually"* (Tier 2), never *"hallucination"* — only a failing DOI/PMID/arXiv/NCT identifier (which is *supposed* to resolve) earns a fabrication verdict. Identifier-less entries in a reference list are surfaced for review rather than silently skipped.
+It is deliberately careful about **what it does *not* flag**: a book (ISBN), a clinical guideline, or any source that isn't indexed in these registries is marked *"Content review needed"* (Tier 2), never *"hallucination"* — only a failing DOI/PMID/arXiv/NCT identifier (which is *supposed* to resolve) earns a fabrication verdict. Identifier-less entries in a reference list are surfaced for review rather than silently skipped.
 
 All registries are free and keyless. Pass `--mailto` to join the faster "polite pool."
 

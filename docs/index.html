@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidentia — Catch fabricated citations before you publish</title>
+<meta name="description" content="Open-source citation verifier for medical writing. npx evidentia check resolves DOI, PMID, arXiv, and NCT IDs against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov. 4-tier verdict. No API key. MIT. Not clinical decision support.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://kgraph57.github.io/evidentia/">
+<link rel="alternate" hreflang="en" href="https://kgraph57.github.io/evidentia/">
+<link rel="alternate" hreflang="ja" href="https://kgraph57.github.io/evidentia/ja/">
+<link rel="stylesheet" href="./site/css/tokens.css">
+<link rel="stylesheet" href="./site/css/style.css"><meta property="og:title" content="Evidentia — Catch fabricated citations before you publish">
+<meta property="og:description" content="Deterministic registry checks. 4-tier verdict — not a vibes checker. No API key.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kgraph57.github.io/evidentia/">
+<meta property="og:image" content="https://kgraph57.github.io/evidentia/og.svg"></head>
+<body><a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap site-header-inner"><a class="wordmark" href="#hero">Evidentia</a>
+<nav class="site-nav" aria-label="Site"><a href="#feel">Demo</a>
+<a href="#tiers">4-tier</a>
+<a href="#layers">Layers</a>
+<a href="#start">Install</a>
+<a href="./ja/" hreflang="ja">日本語</a></nav>
+<a class="btn btn-ghost star-btn" href="https://github.com/kgraph57/evidentia" rel="noopener">★ Star on GitHub</a></div></header>
+<main id="main"><section id="hero" aria-label="Introduction"><div class="wrap hero-grid"><div><p class="hero-kicker">Citation verifier · CLI · MCP · Skill · v1.1.0 MIT</p>
+<h1>Catch fabricated citations<br><em>before you publish.</em></h1>
+<p class="lede">Deterministic registry checks against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov. A 4-tier verdict — Verified, bibliographic mismatch, hallucination, or content review needed. Not a vibes checker. No API key.</p>
+<p class="hero-actions"><a class="btn btn-primary" href="#start">Install in 60 seconds</a> <a class="btn btn-ghost" href="https://github.com/kgraph57/evidentia" rel="noopener">★ Star on GitHub</a></p>
+<p class="hero-sub">Engine: <code>npx evidentia check</code> · Skill: <code>npx skills add kgraph57/evidentia</code></p></div><div><div class="term" id="feel"><div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span><span class="term-title">npx · evidentia check</span></div>
+<pre class="cli" data-cli=""><span class="cli-line"><span class="p">$</span> npx evidentia check examples/inputs/ai-generated-answer.md</span>
+<span class="cli-line"> </span>
+<span class="cli-line">Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrication rate)</span>
+<span class="cli-line">  <span class="ok">[OK ]</span> doi:10.1136/bmj.i6583       — Paper exists and the cited metadata matches the registry record.</span>
+<span class="cli-line">  <span class="hal">[HAL]</span> doi:10.1056/nejmoa2105512   — DOI does not resolve in CrossRef or OpenAlex, and no matching paper was found.</span>
+<span class="cli-line">  <span class="hal">[HAL]</span> pmid:18768876               — Identifier resolves to a different paper than the one cited.</span>
+<span class="cli-line">  <span class="mis">[MIS]</span> doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).</span></pre>
+<button type="button" class="cli-replay">Replay</button></div><p class="term-caption">Committed example — vitamin D / childhood infections. Four citations, one real.</p></div></div></section>
+<section id="why" class="band" aria-label="Why now"><div class="wrap"><span class="kicker">Why now</span>
+<h2>Fabricated references are no longer rare</h2>
+<div class="why-now"><p>A <em>Lancet</em> audit (Topaz et al., 2026) of biomedical papers found fabricated references in <strong>1 in 2,828 papers in 2023</strong>, <strong>1 in 458 in 2025</strong> (about sixfold), and <strong>1 in 277 in the first 7 weeks of 2026</strong> — about a 10-fold rise from 2023, in step with AI writing tools. A fabricated DOI looks exactly like a real one. Evidentia resolves each identifier and tells you which is which.</p><span class="why-cite">Topaz et al., <em>Lancet</em> 2026;407(10541):1779–1781. doi:<a href="https://doi.org/10.1016/S0140-6736(26)00603-3" rel="noopener">10.1016/S0140-6736(26)00603-3</a> · STAT, 7 May 2026 · PMC open-access subset</span></div></div></section>
+<section id="tiers" aria-label="Four-tier classification"><div class="wrap"><span class="kicker">4-tier classification</span>
+<h2>Not 'could not verify.' A reason.</h2>
+<p class="section-lede">Most citation checkers stop at a shrug. Evidentia resolves the identifier and says <strong>why</strong> a citation is suspect.</p>
+<div class="tier-grid"><article class="tier-card tier-ok"><h3><span class="tier-mark">[OK]</span> Verified</h3><p>The paper exists and the cited title, authors, year, and journal match the registry record.</p></article>
+<article class="tier-card tier-rev"><h3><span class="tier-mark">[REV]</span> Content review needed</h3><p>Registries cannot confirm it (book, guideline, title-only), or a real paper still needs a human or LLM to check whether it is used in the right context.</p></article>
+<article class="tier-card tier-mis"><h3><span class="tier-mark">[MIS]</span> Bibliographic mismatch</h3><p>A real paper exists, but the DOI/PMID is wrong or the metadata disagrees — careless citation, or a fabricated identifier bolted onto a real title.</p></article>
+<article class="tier-card tier-hal"><h3><span class="tier-mark">[HAL]</span> Hallucination</h3><p>The identifier resolves to nothing, or to a completely different paper. The signature of AI-generated text.</p></article></div></div></section>
+<section id="layers" class="band" aria-label="Two layers"><div class="wrap"><span class="kicker">Two layers</span>
+<h2>A computer that does not guess, plus a skill that judges</h2>
+<p class="section-lede">Split on purpose: existence is deterministic. Honesty of use still needs judgment.</p>
+<div class="layer-grid"><article class="layer-card"><span class="layer-kicker">Engine · CLI + MCP</span>
+<h3>Does this paper exist?</h3>
+<p>Pure registry lookup. DOI, PMID, arXiv, NCT vs CrossRef, PubMed, OpenAlex, arXiv, ClinicalTrials.gov. No API key, no LLM, no hallucination of its own.</p>
+<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">Skill · 15 criteria</span>
+<h3>Is it used honestly?</h3>
+<p>Wraps the engine in a 15-criteria appraisal: evidence level, statistics, causation vs correlation, conflicts, exaggeration, population fit, ethics — an A–F report with concrete fixes. This is the Tier 2 layer the engine cannot do alone.</p>
+<p><code>npx skills add kgraph57/evidentia</code></p></article></div></div></section>
+<section id="start" aria-label="Install"><div class="wrap"><span class="kicker">60-second start</span>
+<h2>Three ways in. CLI first.</h2>
+<p class="section-lede">No API key. MIT. Pick the path that matches how you write.</p>
+<div class="path-grid"><article class="path-card"><div class="path-head"><span class="path-num">01</span><h3>CLI — no install</h3></div><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-cli" data-copied-label="Copied">Copy</button><pre class="install-term" id="install-cli"><span class="c"># one-off, no API key</span>
+<span class="p">$</span> npx evidentia check your-article.md</pre></div></article>
+<article class="path-card"><div class="path-head"><span class="path-num">02</span><h3>Agent skill</h3></div><p class="path-note">Works because <code>SKILL.md</code> lives at <code>skills/medical-fact-check/SKILL.md</code>.</p><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-skill" data-copied-label="Copied">Copy</button><pre class="install-term" id="install-skill"><span class="c"># Claude Code, Cursor, Codex, and other agents that load skills</span>
+<span class="p">$</span> npx skills add kgraph57/evidentia</pre></div></article>
+<article class="path-card"><div class="path-head"><span class="path-num">03</span><h3>Claude plugin</h3></div><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-plugin" data-copied-label="Copied">Copy</button><pre class="install-term" id="install-plugin"><span class="p">$</span> /plugin marketplace add kgraph57/evidentia
+<span class="p">$</span> /plugin install evidentia@evidentia</pre></div></article></div>
+<p class="mcp-note">MCP, if you want the engine inside any agent: <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p>
+<p class="cds-note">Evidentia is a pre-publication aid for writers, editors, and researchers — <strong>not clinical decision support</strong>. It does not diagnose, treat, or replace professional medical judgment.</p></div></section></main>
+<footer class="site-footer"><div class="wrap"><p class="ft-cta">If you publish medical writing — and refuse to ship a fabricated DOI — star it and put it on your path.</p>
+<p class="ft-actions"><a class="btn btn-primary" href="#start">Install</a> <a class="btn btn-ghost" href="https://github.com/kgraph57/evidentia" rel="noopener">★ Star on GitHub</a></p>
+<hr class="ft-divider">
+<div class="ft-small"><p>MIT License · Evidentia v1.1.0 · Copyright (c) 2026 Ken Okamoto, MD</p>
+<p>Not clinical decision support. Does not diagnose, treat, or replace professional medical judgment.</p>
+<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">registry</a></li><li><a href="./ja/" hreflang="ja">日本語</a></li></ul></div></div></footer>
+<script src="./site/js/main.js" defer=""></script></body></html>
