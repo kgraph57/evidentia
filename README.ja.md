@@ -6,6 +6,8 @@
 
 Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov** に照合し、4段階で分類します。さらにエージェントスキルでは、15項目のエビデンス評価を重ねて A〜F のレポートを生成します。作者は小児科専門医。
 
+**サイト:** [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
+
 [![npm](https://img.shields.io/npm/v/evidentia?color=cb3837&logo=npm)](https://www.npmjs.com/package/evidentia)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](https://code.claude.com/docs/en/skills)
@@ -18,7 +20,7 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 
 ---
 
-> **なぜ今か:** 250万本の生物医学論文を監査した *Lancet*（Topaz et al., 2026年5月; [doi:10.1016/S0140-6736(26)00603-3](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(26)00603-3/fulltext)）の調査で、**2026年初頭に出版された論文の277本に1本が捏造引用を含む**ことが判明しました。2023年の2,828本に1本から **12倍** の増加で、生成AIライティングツールの普及と時期が一致しています（監査対象はPubMed Centralオープンアクセス収載分）。報道: [STAT](https://www.statnews.com/2026/05/07/lancet-study-finds-steep-rise-fraudulent-citations-academic-papers/) ・ [Nature](https://www.nature.com/articles/d41586-026-00748-w) ・ [Columbia看護学部](https://www.nursing.columbia.edu/news/nearly-3-000-peer-reviewed-medical-papers-have-fake-citations-columbia-nursing-ai-assisted-audit-finds) ・ [Retraction Watch](https://retractionwatch.com/2026/05/07/one-in-277-pubmed-indexed-papers-in-2026-shows-fabricated-references-says-analysis/)
+> **なぜ今か:** 250万本の生物医学論文を監査した *Lancet*（Topaz et al., *Lancet* 2026;407(10541):1779–1781; [doi:10.1016/S0140-6736(26)00603-3](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(26)00603-3/fulltext)）の調査で、捏造文献は **2023年は2,828本に1本**、**2025年は458本に1本**（約6倍）、**2026年最初の7週間は277本に1本** でした。2023年比で約10倍の増加で、生成AIライティングツールの普及と時期が一致しています（監査対象はPubMed Centralオープンアクセス収載分）。報道: [STAT](https://www.statnews.com/2026/05/07/lancet-study-finds-steep-rise-fraudulent-citations-academic-papers/)（2026年5月7日） ・ [Nature](https://www.nature.com/articles/d41586-026-00748-w) ・ [Columbia看護学部](https://www.nursing.columbia.edu/news/nearly-3-000-peer-reviewed-medical-papers-have-fake-citations-columbia-nursing-ai-assisted-audit-finds) ・ [Retraction Watch](https://retractionwatch.com/2026/05/07/one-in-277-pubmed-indexed-papers-in-2026-shows-fabricated-references-says-analysis/)。のちに Department of Error が出ています（[doi:10.1016/s0140-6736(26)01339-5](https://doi.org/10.1016/s0140-6736(26)01339-5)、2026年7月）。ここに書いた発生率は原報とSTAT報道に従っています。
 >
 > 捏造されたDOIは、本物のDOIと見分けがつきません。Evidentia は一つずつ実際に解決し、どれが本物でどれが偽物かを教えます。
 
@@ -26,13 +28,21 @@ Evidentia は医学文章中のすべての引用を **CrossRef・PubMed・OpenA
 
 ## 30秒で始める
 
+サイト: [https://kgraph57.github.io/evidentia/](https://kgraph57.github.io/evidentia/)
+
 **コマンドラインツールとして**（インストール不要・APIキー不要）:
 
 ```bash
 npx evidentia check your-article.md
 ```
 
-**Claude Code スキルとして**（15項目の完全評価）:
+**エージェントスキルとして**（15項目の完全評価。`SKILL.md` が `skills/medical-fact-check/SKILL.md` にあるので動きます）:
+
+```bash
+npx skills add kgraph57/evidentia
+```
+
+**Claude Code プラグインとして**:
 
 ```bash
 /plugin marketplace add kgraph57/evidentia
@@ -73,7 +83,7 @@ Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrica
 | ✅ **1** | **検証済み** | 論文が実在し、引用のタイトル/著者/年/誌名がレジストリ記録と一致 |
 | ⚠️ **3** | **書誌の不一致** | 実在する論文だが、DOI/PMID が誤っている、またはメタデータが食い違う |
 | ❌ **4** | **ハルシネーション** | 識別子が何も解決しない、または *まったく別の* 論文を指す。AI生成テキストの典型 |
-| 🔍 **2** | **文脈レビューが必要** | 論文は実在するが、*正しい文脈で使われているか* は人間かLLMの判断が必要（下記スキルが担当） |
+| 🔍 **2** | **内容レビューが必要** | 論文は実在するが、*正しい文脈で使われているか* は人間かLLMの判断が必要（下記スキルが担当） |
 
 ## 2層構成: 決定論エンジン + LLM評価
 
@@ -156,7 +166,15 @@ evidentia check <file|url|->   ファイル・Webページ・標準入力の引�
   --offline                    抽出のみ・ネットワークなし
 ```
 
-### Claude Code スキル / プラグイン
+### エージェントスキル
+
+```bash
+npx skills add kgraph57/evidentia
+```
+
+`SKILL.md` が `skills/medical-fact-check/SKILL.md` にあるので、このコマンドで入ります。
+
+### Claude Code プラグイン
 
 ```bash
 /plugin marketplace add kgraph57/evidentia
@@ -172,7 +190,7 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 
 ## 検証の仕組み
 
-<div align="center"><img src="assets/flow.svg" alt="フロー: article.md から識別子を抽出し、CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov に照合して、4段階の判定（検証済み・書誌の不一致・ハルシネーション・文脈レビュー）に振り分ける" width="900"></div>
+<div align="center"><img src="assets/flow.svg" alt="フロー: article.md から識別子を抽出し、CrossRef・PubMed・OpenAlex・arXiv・ClinicalTrials.gov に照合して、4段階の判定（検証済み・書誌の不一致・ハルシネーション・内容レビュー）に振り分ける" width="900"></div>
 
 各引用について、Evidentia はすべての識別子（DOI・PMID・arXiv・**NCT試験ID・ISBN**）と近接するタイトル/著者/年を抽出し、次を行います:
 
@@ -185,7 +203,7 @@ cp -r evidentia/skills/medical-fact-check ~/.claude/skills/
 
 各JSON引用には `lookupVerified`（`true` / `false` / `unresolvable`）と `resolverOutcomes`（`matched` / `unmatched` / `unreachable` / `skipped`、識別子・タイトルどちらで照合したかを含む）が付き、人間向けの4段階判定を変えずにエージェントの処理を監査可能にします。
 
-**何をフラグ *しない* か** も意図的に慎重です。書籍（ISBN）・診療ガイドライン・これらのレジストリに収載されない情報源は *「手動で確認」*（Tier 2）とし、決して *「ハルシネーション」* とはしません。捏造判定が付くのは、本来解決するはずの DOI/PMID/arXiv/NCT 識別子が解決しない場合だけです。識別子のない参考文献も、黙って飛ばさずレビュー対象として表示します。
+**何をフラグ *しない* か** も意図的に慎重です。書籍（ISBN）・診療ガイドライン・これらのレジストリに収載されない情報源は *「内容レビューが必要」*（Tier 2）とし、決して *「ハルシネーション」* とはしません。捏造判定が付くのは、本来解決するはずの DOI/PMID/arXiv/NCT 識別子が解決しない場合だけです。識別子のない参考文献も、黙って飛ばさずレビュー対象として表示します。
 
 すべてのレジストリは無料・キー不要です。`--mailto` を付けると高速な「polite pool」に参加できます。
 

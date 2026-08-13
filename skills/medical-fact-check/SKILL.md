@@ -144,7 +144,7 @@ If the content cites papers or sources, verify them. **Prefer the deterministic 
 
 #### 4a. Run the deterministic engine (existence + bibliographic accuracy)
 
-If `evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves DOI/PMID/arXiv/NCT identifiers against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty - no model guesswork. Books (ISBN), guidelines, title-only citations, and other non-indexed sources are returned as Tier 2 ("verify manually"), never as fabrications:
+If `evidentia` (or the `verify_citations` MCP tool) is available, run it on the content first. It resolves DOI/PMID/arXiv/NCT identifiers against CrossRef, PubMed, OpenAlex, arXiv, and ClinicalTrials.gov and returns Tiers 1, 3, and 4 with certainty - no model guesswork. Books (ISBN), guidelines, title-only citations, and other non-indexed sources are returned as Tier 2 (**Content review needed**), never as fabrications:
 
 ```bash
 evidentia check <file-or-url> --format json --cache "$HOME/.cache/evidentia/verification-cache.json" --mailto <your-email>
@@ -159,7 +159,7 @@ npx -y evidentia check <file-or-url> --format json --cache "$HOME/.cache/evident
 Use its output as the ground truth for citation *existence*. Inspect `lookupVerified` and `resolverOutcomes` when explaining why a citation was classified:
 
 - **Tier 1 (Verified)** — the paper, preprint, or trial exists and metadata matches. Proceed to the context check in 4b.
-- **Tier 2 (Manual / content review needed)** — the source may be real, but the engine cannot deterministically verify it or semantic use still needs review.
+- **Tier 2 (Content review needed)** — the source may be real, but the engine cannot deterministically verify it in registries, or semantic use still needs review.
 - **Tier 3 (Bibliographic mismatch)** — a real record exists, but the DOI/PMID/arXiv/NCT identifier or metadata is wrong. Record the discrepancy.
 - **Tier 4 (Hallucination)** — the identifier resolves to nothing or to a different paper. Flag as a fabricated citation immediately; this is the highest-severity finding.
 
@@ -194,7 +194,7 @@ Classify each citation into one of 4 tiers:
 | Tier | Classification | Description |
 |------|---------------|-------------|
 | 1 | **Verified** | Paper exists and content matches the citation |
-| 2 | **Content mismatch** | Paper exists but is cited out of context |
+| 2 | **Content review needed** | The paper is real, but whether it is used in the right context needs a human or an LLM. Also used when the engine cannot verify the source in registries (books, guidelines, title-only). |
 | 3 | **Bibliographic mismatch** | Paper exists but DOI, author, or journal info is wrong |
 | 4 | **Hallucination** | DOI points to an unrelated paper, or the paper does not exist |
 
