@@ -1,91 +1,189 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evidentia — 捏造引用を、公開前に捕まえる</title>
-<meta name="description" content="医学文章の引用を検証するオープンソース。npx evidentia check が DOI / PMID / arXiv / NCT を CrossRef、PubMed、OpenAlex、arXiv、ClinicalTrials.gov に照合。4段階判定。APIキー不要。MIT。臨床判断支援ではありません。">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://kgraph57.github.io/evidentia/ja/">
-<link rel="alternate" hreflang="en" href="https://kgraph57.github.io/evidentia/">
-<link rel="alternate" hreflang="ja" href="https://kgraph57.github.io/evidentia/ja/">
-<link rel="stylesheet" href="../site/css/tokens.css">
-<link rel="stylesheet" href="../site/css/style.css"><meta property="og:title" content="Evidentia — 捏造引用を、公開前に捕まえる">
-<meta property="og:description" content="決定論的なレジストリ照合。4段階判定。雰囲気チェッカーではない。APIキー不要。">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://kgraph57.github.io/evidentia/ja/">
-<meta property="og:image" content="https://kgraph57.github.io/evidentia/og.svg"></head>
-<body><a class="skip-link" href="#main">本文へスキップ</a>
-<header class="site-header"><div class="wrap site-header-inner"><a class="wordmark" href="#hero">Evidentia</a>
-<nav class="site-nav" aria-label="サイト"><a href="#feel">デモ</a>
-<a href="#tiers">4段階</a>
-<a href="#layers">2層</a>
-<a href="#verify">検証</a>
-<a href="#start">導入</a>
-<a href="../" hreflang="en">English</a></nav>
-<a class="btn btn-ghost star-btn" href="https://github.com/kgraph57/evidentia" rel="noopener">★ GitHubでStar</a></div></header>
-<main id="main"><section id="hero" aria-label="導入"><div class="wrap hero-grid"><div><p class="hero-kicker">引用検証 · CLI · MCP · Skill · v1.1.0 MIT</p>
-<h1>捏造引用を、<br><em>公開前に捕まえる。</em></h1>
-<p class="lede">CrossRef、PubMed、OpenAlex、arXiv、ClinicalTrials.gov への決定論的なレジストリ照合。判定は4段階 — 検証済み、書誌の不一致、ハルシネーション、内容レビューが必要。雰囲気で「怪しい」と言うチェッカーではない。APIキー不要。</p>
-<p class="hero-actions"><a class="btn btn-primary" href="#start">60秒で始める</a> <a class="btn btn-ghost" href="https://github.com/kgraph57/evidentia" rel="noopener">★ GitHubでStar</a></p>
-<p class="hero-sub">エンジン: <code>npx evidentia check</code> · スキル: <code>npx skills add kgraph57/evidentia</code></p></div><div><div class="term" id="feel"><div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span><span class="term-title">npx · evidentia check</span></div>
-<pre class="cli" data-cli=""><span class="cli-line"><span class="p">$</span> npx evidentia check examples/inputs/ai-generated-answer.md</span>
-<span class="cli-line"> </span>
-<span class="cli-line">Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrication rate)</span>
-<span class="cli-line">  <span class="ok">[OK ]</span> doi:10.1136/bmj.i6583       — Paper exists and the cited metadata matches the registry record.</span>
-<span class="cli-line">  <span class="hal">[HAL]</span> doi:10.1056/nejmoa2105512   — DOI does not resolve in CrossRef or OpenAlex, and no matching paper was found.</span>
-<span class="cli-line">  <span class="hal">[HAL]</span> pmid:18768876               — Identifier resolves to a different paper than the one cited.</span>
-<span class="cli-line">  <span class="mis">[MIS]</span> doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).</span></pre>
-<button type="button" class="cli-replay">リプレイ</button></div><p class="term-caption">収録の実行例 — ビタミンDと小児感染症。引用4件のうち、実在は1件。</p></div></div></section>
-<section id="why" class="band" aria-label="なぜ今か"><div class="wrap"><span class="kicker">なぜ今か</span>
-<h2>捏造文献は、もう珍しくない</h2>
-<div class="why-now"><p>生物医学論文を対象にした <em>Lancet</em> の監査（Topaz et al., 2026）では、捏造文献は <strong>2023年は2,828本に1本</strong>、<strong>2025年は458本に1本</strong>（約6倍）、<strong>2026年最初の7週間は277本に1本</strong>。2023年比で約10倍で、生成AIライティングの普及と時期が重なる。捏造DOIは本物と見分けがつかない。Evidentia は識別子を一つずつ解決して、どれが本物かを示す。</p><span class="why-cite">Topaz et al., <em>Lancet</em> 2026;407(10541):1779–1781. doi:<a href="https://doi.org/10.1016/S0140-6736(26)00603-3" rel="noopener">10.1016/S0140-6736(26)00603-3</a> · STAT、2026年5月7日 · PMCオープンアクセス収載分</span></div></div></section>
-<section id="tiers" aria-label="4段階分類"><div class="wrap"><span class="kicker">4段階分類</span>
-<h2>「検証できませんでした」で終わらない。理由を出す。</h2>
-<p class="section-lede">多くの引用チェッカーはそこで止まる。Evidentia は識別子を解決し、なぜ怪しいのかを示す。</p>
-<div class="tier-grid"><article class="tier-card tier-ok"><h3><span class="tier-mark">[OK]</span> 検証済み</h3><p>論文は実在し、引用のタイトル・著者・年・誌名がレジストリ記録と一致する。</p></article>
-<article class="tier-card tier-rev"><h3><span class="tier-mark">[REV]</span> 内容レビューが必要</h3><p>レジストリでは確定できない（書籍・ガイドライン・タイトルのみ）、または実在論文でも、正しい文脈で使われているかの確認が人間かLLMに残る。</p></article>
-<article class="tier-card tier-mis"><h3><span class="tier-mark">[MIS]</span> 書誌の不一致</h3><p>実在する論文だが、DOI/PMID が誤っているかメタデータが食い違う。雑な引用か、本物のタイトルに捏造識別子を付けたもの。</p></article>
-<article class="tier-card tier-hal"><h3><span class="tier-mark">[HAL]</span> ハルシネーション</h3><p>識別子が何も解決しない、またはまったく別の論文を指す。AI生成テキストの典型。</p></article></div></div></section>
-<section id="layers" class="band" aria-label="2層構成"><div class="wrap"><span class="kicker">2層構成</span>
-<h2>推測しないエンジンと、判断するスキル</h2>
-<p class="section-lede">分けているのは意図的。存在の確認は決定論。使い方の誠実さには判断が要る。</p>
-<div class="layer-grid"><article class="layer-card"><span class="layer-kicker">エンジン · CLI + MCP</span>
-<h3>この論文は実在するか</h3>
-<p>純粋なレジストリ照合。DOI / PMID / arXiv / NCT を CrossRef、PubMed、OpenAlex、arXiv、ClinicalTrials.gov へ。APIキー不要、LLMなし、エンジン自身はハルシネーションしない。</p>
-<p><code>npx evidentia check</code> · <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p></article><article class="layer-card"><span class="layer-kicker">スキル · 4ループ</span>
-<h3>正しく使われているか</h3>
-<p>まず主張台帳。つづいてエンジン、意味、敵対、修正の4ループ。15項目はその中の一工程。KILL または MAJOR は A では出せない。</p>
-<p><code>npx skills add kgraph57/evidentia</code></p></article></div></div></section>
-<section id="verify" aria-label="スキルの検証の仕方"><div class="wrap"><span class="kicker">スキルの検証の仕方</span>
-<h2>まず主張台帳。ループは4つ。KILL は仕様。</h2>
-<p class="section-lede">15項目のルーブリックはパイプラインの中の一工程であって、商品そのものではない。存在はエンジン、誠実さはスキル。実在として出した捏造DOIは <strong>KILL</strong> — 総合 ≤ D、捏造なら F。それが故障ではなく、仕組みが動いているということ。</p>
-<div class="loop-grid"><article class="loop-card"><span class="loop-kicker">01 · エンジン</span>
-<h3>実在するか</h3>
-<p>レジストリ照合。届かなければ1回だけ再試行。それでもダメなら unresolved。推測のハルシネーションは付けない。</p></article>
-<article class="loop-card"><span class="loop-kicker">02 · 意味</span>
-<h3>実在論文を誠実に使っているか</h3>
-<p>Tier 1 だけ、抄録を1回余分に取る。主要アウトカム、対象集団、効果の向き。T3 や T4 は格上げしない。</p></article>
-<article class="loop-card loop-kill"><span class="loop-kicker">03 · 敵対</span>
-<h3>KILL は仕様</h3>
-<p>レンズは5つ。KILL / MAJOR / MINOR / PASS。KILL または MAJOR は A では出せない。最大3パス。</p></article>
-<article class="loop-card"><span class="loop-kicker">04 · 修正</span>
-<h3>直したら、エンジンから入り直す</h3>
-<p>上限3回。その後は止まって残件を書く。T4 が残っているあいだは評点を上げない。</p></article></div>
-<p class="verify-case">実例: <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">ビタミンD — 主張台帳 → エンジン → 意味 → KILL</a>。</p></div></section>
-<section id="start" aria-label="導入"><div class="wrap"><span class="kicker">60秒スタート</span>
-<h2>入り方は3つ。まず CLI。</h2>
-<p class="section-lede">APIキー不要。MIT。書き方に合う経路を選ぶ。</p>
-<div class="path-grid"><article class="path-card"><div class="path-head"><span class="path-num">01</span><h3>CLI — インストール不要</h3></div><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-cli" data-copied-label="コピー済み">コピー</button><pre class="install-term" id="install-cli"><span class="c"># 単発・APIキー不要</span>
-<span class="p">$</span> npx evidentia check your-article.md</pre></div></article>
-<article class="path-card"><div class="path-head"><span class="path-num">02</span><h3>エージェントスキル</h3></div><p class="path-note"><code>SKILL.md</code> が <code>skills/medical-fact-check/SKILL.md</code> にあるので、このコマンドで入ります。</p><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-skill" data-copied-label="コピー済み">コピー</button><pre class="install-term" id="install-skill"><span class="c"># Claude Code、Cursor、Codex など、スキルを読むエージェント</span>
-<span class="p">$</span> npx skills add kgraph57/evidentia</pre></div></article>
-<article class="path-card"><div class="path-head"><span class="path-num">03</span><h3>Claude プラグイン</h3></div><div class="install-shell"><button type="button" class="copy-btn" data-copy="#install-plugin" data-copied-label="コピー済み">コピー</button><pre class="install-term" id="install-plugin"><span class="p">$</span> /plugin marketplace add kgraph57/evidentia
-<span class="p">$</span> /plugin install evidentia@evidentia</pre></div></article></div>
-<p class="mcp-note">エンジンをエージェントに載せるなら MCP: <code>claude mcp add evidentia -- npx -y evidentia-mcp</code></p>
-<p class="cds-note">Evidentia は執筆者・編集者・研究者のための公開前支援であり、<strong>臨床判断支援ではありません</strong>。診断・治療・医療専門家の判断を代替しません。</p></div></section></main>
-<footer class="site-footer"><div class="wrap"><p class="ft-cta">医学文章を公開するなら — 捏造DOIを出さないために — Star してパスに載せてください。</p>
-<p class="ft-actions"><a class="btn btn-primary" href="#start">インストール</a> <a class="btn btn-ghost" href="https://github.com/kgraph57/evidentia" rel="noopener">★ GitHubでStar</a></p>
-<hr class="ft-divider">
-<div class="ft-small"><p>MIT License · Evidentia v1.1.0 · Copyright (c) 2026 Ken Okamoto, MD</p>
-<p>臨床判断支援ではありません。診断・治療・医療専門家の判断を代替しません。</p>
-<ul class="ft-links"><li><a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></li><li><a href="https://github.com/kgraph57/evidentia/blob/main/README.md" rel="noopener">README</a></li><li><a href="https://www.npmjs.com/package/evidentia" rel="noopener">npm</a></li><li><a href="../" hreflang="en">English</a></li></ul></div></div></footer>
-<script src="../site/js/main.js" defer=""></script></body></html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Evidentia — 品質はどう担保されるか</title>
+    <meta name="description" content="公開前の医学文章向けの手順。主張台帳のあと、エンジン、意味、15項目、敵対、修正。存在はレジストリ照合。実在として出した捏造識別子は KILL。臨床判断支援ではありません。" />
+    <link rel="canonical" href="https://kgraph57.github.io/evidentia/ja/" />
+    <link rel="alternate" hreflang="en" href="https://kgraph57.github.io/evidentia/" />
+    <link rel="alternate" hreflang="ja" href="https://kgraph57.github.io/evidentia/ja/" />
+    <meta property="og:title" content="Evidentia — 品質はどう担保されるか" />
+    <meta property="og:description" content="品質は採点表ではなく、ゲート付きのループで担保する。存在はエンジン。誠実さはスキル。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kgraph57.github.io/evidentia/ja/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="../site/css/tokens.css" />
+    <link rel="stylesheet" href="../site/css/style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へスキップ</a>
+    <header class="mast">
+      <div class="wrap mast-inner">
+        <a class="wordmark" href="./">Evidentia</a>
+        <nav class="mast-nav" aria-label="言語">
+          <a href="../" hreflang="en">EN</a>
+          <a href="./" hreflang="ja" aria-current="page">日本語</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <div class="wrap">
+        <header class="ident measure">
+          <h1>品質はどう担保されるか</h1>
+          <p>Evidentia は、医学文章を公開する前の手順です。品質は宣伝用の採点表ではなく、ゲート付きのループで担保します。存在はレジストリ照合。使い方の誠実さはスキル。実在として出した捏造識別子は <span class="kill">KILL</span> です。</p>
+          <p class="by">CLI + MCP エンジン · <code>skills/medical-fact-check</code> · MIT · 臨床判断支援ではない</p>
+        </header>
+        <section class="block" id="flow" aria-labelledby="sec-flow">
+          <h2 class="sec" id="sec-flow">flow</h2>
+          <ol class="gates">
+            <li>
+              <span class="n n-src" aria-hidden="true"></span>
+              <div class="g"><p class="src">content</p></div>
+            </li>
+            <li>
+              <span class="n" aria-hidden="true">1</span>
+              <div class="g">
+                <h3>主張台帳 <span class="aka">Claim ledger</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>照合の前に、検証可能な主張と識別子をすべて抜き出す。見出しも対象。</dd>
+                  </div>
+                  <div>
+                    <dt>停止</dt>
+                    <dd>台帳ができるまで、エンジンは呼ばない。</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+            <li class="loop-a" id="engine">
+              <span class="n" aria-hidden="true">2</span>
+              <div class="g">
+                <h3>エンジン <span class="aka">Engine</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>存在。DOI / PMID / arXiv / NCT を CrossRef、PubMed、OpenAlex、arXiv、ClinicalTrials.gov に照合する。</dd>
+                  </div>
+                  <div>
+                    <dt>失敗</dt>
+                    <dd>1回だけ再試行。それでも落ちていれば unresolved（Hallucination と推測しない）。T4 は存在の事実であり、LLM が上書きしてはならない。ISBN・ガイドライン・タイトルのみは T2 であり、T4 にはしない。</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+            <li class="loop-m">
+              <span class="n" aria-hidden="true">3</span>
+              <div class="g">
+                <h3>意味 <span class="aka">Semantic</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>誠実さ。T1 の引用ごとに抄録を1回取る。主要アウトカム、対象集団、効果の向き。</dd>
+                  </div>
+                  <div>
+                    <dt>失敗</dt>
+                    <dd>T3 / T4 は格上げしない。</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+            <li class="loop-m">
+              <span class="n" aria-hidden="true">4</span>
+              <div class="g">
+                <h3>15項目 <span class="aka">15-criteria</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>文章の評価（治療の推奨ではない）。</dd>
+                  </div>
+                  <div>
+                    <dt>停止</dt>
+                    <dd>診断・治療・専門家の判断の代替ではない。</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+            <li class="loop-z">
+              <span class="n" aria-hidden="true">5</span>
+              <div class="g">
+                <h3>敵対 <span class="aka">Adversarial</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>5つのレンズと10行のチェックリスト → <span class="kill">KILL</span> / MAJOR / MINOR / PASS.</dd>
+                  </div>
+                  <div>
+                    <dt>失敗</dt>
+                    <dd><span class="kill">KILL</span>（実在として出した T4、または危害）は評点 ≤ D（捏造なら F）。MAJOR は A にできない。</dd>
+                  </div>
+                </dl>
+                <p class="reenter"><span class="arrow">loop</span> 5 → 2 エンジン · 上限 3</p>
+              </div>
+            </li>
+            <li>
+              <span class="n" aria-hidden="true">6</span>
+              <div class="g">
+                <h3>修正 <span class="aka">Correction</span></h3>
+                <dl class="rows">
+                  <div>
+                    <dt>確認</dt>
+                    <dd>利用者が本文を直す。</dd>
+                  </div>
+                  <div>
+                    <dt>停止</dt>
+                    <dd>2 エンジンへ戻る。上限 3 回。その後は止まって、残件を書く。</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section class="block" id="run" aria-labelledby="sec-run">
+          <h2 class="sec" id="sec-run">run</h2>
+          <div class="cli-wrap">
+            <pre class="cli" id="cli-demo">$ npx evidentia check examples/inputs/ai-generated-answer.md
+
+Evidentia: 4 citations — 1 verified, 1 mismatch, 2 hallucinated (75.0% fabrication rate)
+  <span class="ok">[OK ]</span> doi:10.1136/bmj.i6583       — Paper exists and the cited metadata matches the registry record.
+  <span class="hal">[HAL]</span> doi:10.1056/nejmoa2105512   — DOI does not resolve in CrossRef or OpenAlex, and no matching paper was found.
+  <span class="hal">[HAL]</span> pmid:18768876               — Identifier resolves to a different paper ("Trafficking of antigen-specific
+                                       CD8+ T lymphocytes…") than the one cited.
+  [MIS] doi:10.1002/14651858.cd012734 — Paper exists, but cited metadata disagrees with the record (year).</pre>
+          </div>
+          <p class="case">
+            収録済みの実行。ビタミンDと小児感染症。引用4件、実在は1件。Cochrane の DOI は T3 のまま（T4 に上げていない）。
+            <a href="https://github.com/kgraph57/evidentia/blob/main/examples/case-studies/vitamin-d-adversarial.md" rel="noopener">ケーススタディ: 主張台帳 → エンジン → 意味 → KILL</a>。
+          </p>
+        </section>
+        <section class="block" id="install" aria-labelledby="sec-install">
+          <h2 class="sec" id="sec-install">install</h2>
+          <div class="install">
+            <button type="button" class="copy" data-copy="#install-block" data-idle="コピー" data-done="コピーした">コピー</button>
+            <pre id="install-block">npx evidentia check your-article.md
+npx skills add kgraph57/evidentia</pre>
+          </div>
+        </section>
+        <aside class="note measure" id="note">
+          <p>
+            Topaz et al., <i>Lancet</i> 2026。捏造文献は 2026 年最初の7週間で 277 本に1本。2023 年（2,828 本に1本）から約10倍。PMC オープンアクセス収載分。
+            doi:<a href="https://doi.org/10.1016/S0140-6736(26)00603-3" rel="noopener">10.1016/S0140-6736(26)00603-3</a>。
+          </p>
+        </aside>
+      </div>
+    </main>
+    <footer class="foot">
+      <div class="wrap">
+        <p>MIT License · Ken Okamoto, MD · <a href="https://github.com/kgraph57/evidentia" rel="noopener">GitHub</a></p>
+        <p>臨床判断支援ではありません。診断・治療・医療専門家の判断を代替しません。</p>
+        <ul class="foot-links">
+          <li><a href="../" hreflang="en">EN</a></li>
+          <li><a href="./" hreflang="ja" aria-current="page">日本語</a></li>
+        </ul>
+      </div>
+    </footer>
+    <script src="../site/js/main.js" defer></script>
+  </body>
+</html>
